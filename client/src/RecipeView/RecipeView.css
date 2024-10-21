@@ -1,0 +1,153 @@
+/* Global Settings */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: row;
+    height: 90vh; /* Stretches the container vertically across most of the screen */
+    width: 95vw; /* Takes most of the screen width */
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  /* Ingredients Section - Left */
+  .ingredients-section {
+    flex: 1;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-right: 2px solid #e0e0e0;
+  }
+  
+  .ingredients-section h2 {
+    color: #333;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+  }
+  
+  .ingredients-section ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .ingredients-section li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+    color: #555;
+    font-size: 1.1rem;
+  }
+  
+  /* Steps Section - Middle */
+  .steps-section {
+    flex: 2;
+    padding: 20px;
+    background-color: #ffffff;
+    border-right: 2px solid #e0e0e0;
+    text-align: center;
+  }
+  
+  .steps-section h2 {
+    color: #333;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+  }
+  
+  .steps-section ol {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .steps-section li {
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 1.1rem;
+  }
+  
+  /* Info Section - Right */
+  .info-section {
+    flex: 1;
+    padding: 15px;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .recipe-info h2 {
+    color: #d35400;
+    font-size: 1.6rem;
+  }
+  
+  .recipe-info p {
+    color: #6c757d;
+  }
+  
+  .labels {
+    margin-top: 20px;
+  }
+  
+  .labels .label {
+    display: inline-block;
+    background-color: #17a2b8;
+    color: white;
+    padding: 8px 12px;
+    margin: 5px;
+    font-size: 0.9rem;
+    border-radius: 30px;
+    text-align: center;
+  }
+  
+  .image-gallery {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 60%;
+    overflow-y: auto;
+  }
+  
+  .image-gallery img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+  
+  /* Responsive Design for Mobile */
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      height: auto;
+      width: 100%;
+    }
+  
+    .ingredients-section,
+    .steps-section,
+    .info-section {
+      flex: 1;
+      padding: 10px;
+    }
+  
+    .image-gallery {
+      flex-grow: 0;
+      max-height: 200px;
+    }
+  
+    .labels .label {
+      font-size: 0.8rem;
+      padding: 5px 10px;
+    }
+  }
+  
