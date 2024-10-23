@@ -1,13 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./RecipeBrowser.css";
 
 const RecipeBrowser = ({ recipes }) => {
   const [filter, setFilter] = useState("all"); // State for filtering
   const [sortOption, setSortOption] = useState("default"); // State for sorting
+  const navigate = useNavigate();
 
   // Function to handle filtering
   const filteredRecipes = recipes.filter((recipe) =>
-    filter === "all" ? true : recipe.category === filter
+    filter === "all" ? true : recipe.labels.includes(filter)
   );
 
   // Function to handle sorting
@@ -27,7 +29,11 @@ const RecipeBrowser = ({ recipes }) => {
           <button onClick={() => setFilter("all")}>הכל</button>
           <button onClick={() => setFilter("בישול")}>בישול</button>
           <button onClick={() => setFilter("אפייה")}>אפייה</button>
-          <button onClick={() => setFilter("צלייה")}>צלייה</button>
+          <button onClick={() => setFilter("דגים")}>דגים</button>
+          <button onClick={() => setFilter("בשרי")}>בשרי</button>
+          <button onClick={() => setFilter("חלבי")}>חלבי</button>
+          <button onClick={() => setFilter("צמחוני")}>צמחוני</button>
+          <button onClick={() => setFilter("קינוח")}>קינוח</button>
         </div>
         <div className="sort-options">
           <label> מיין לפי:</label>
@@ -37,23 +43,31 @@ const RecipeBrowser = ({ recipes }) => {
           </select>
         </div>
       </div>
-
-      <div className="recipe-grid">
-        {sortedRecipes.map((recipe, index) => (
-          <div key={index} className="recipe-card">
-            <img src={recipe.image} alt={recipe.name} />
-            <h3>{recipe.name}</h3>
-            <p>{recipe.description}</p>
-            <div className="labels">
-              {recipe.labels.map((label, index) => (
-                <span key={index} className="label">
-                  {label}
-                </span>
-              ))}
+      <div className="recipes-div">
+        <div className="recipe-grid">
+          {sortedRecipes.map((recipe, index) => (
+            <div key={index} className="recipe-card">
+              <img src={recipe.images[0]} alt={recipe.name} />{" "}
+              {/* Using the first image */}
+              <h3>{recipe.name}</h3>
+              <p>מחבר: {recipe.author}</p>
+              <p>{recipe.description}</p>
+              <div className="labels">
+                {recipe.labels.map((label, index) => (
+                  <span key={index} className="label">
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <button
+                className="view-recipe"
+                onClick={() => navigate(`/recipe/${recipe.id}`)}
+              >
+                צפיה במתכון
+              </button>
             </div>
-            <button className="view-recipe">צפיה במתכון</button>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,35 +1,34 @@
 import React from "react";
-// import { useParams } from "react-router-dom"; // Hook to access route parameters
 import "./RecipeView.css"; // Add appropriate styling
 
 function RecipeView({ recipe }) {
-  // const { id } = useParams(); // Get recipe ID from the route
-  // const recipe = recipes.find((r) => r.id === parseInt(id)); // Find the recipe by ID
-  // console.log(id)
-  // if (!recipe) {
-  //   return <div>מתכון לא נמצא</div>;
-  // }
-
   return (
     <div className="container">
       {/* Left Side - Ingredients */}
       <div className="ingredients-section">
         <h2>רשימת מצרכים</h2>
-        <ul>
-          {recipe.ingredients.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
+        <div className="ingredients-div">
+          <ul>
+            {recipe.ingredients.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Middle Side - Steps */}
       <div className="steps-section">
         <h2>שלבי הכנה</h2>
-        <ol>
-          {recipe.steps.map((step, index) => (
-            <li key={index}>{step}</li>
-          ))}
-        </ol>
+        <div className="steps-div">
+          <ul>
+            {Object.entries(recipe.steps).map(([key, item], index) => (
+              <li key={index} id={item.id}>
+                <h3>:שלב {key}</h3>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Right Side - Info and Image Gallery */}

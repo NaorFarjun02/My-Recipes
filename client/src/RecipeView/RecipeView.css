@@ -1,153 +1,183 @@
 /* Global Settings */
-body, html {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
+body,
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #f0f2f5;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 85vh;
+  width: 95vw;
+  max-width: 1500px; /* Optional: set a max-width for larger screens */
+  background-color: #ffffff;
+  /* border-radius: 15px; */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  margin: 0 auto; /* Center the container horizontally */
+}
+
+/* Ingredients Section - Left */
+.ingredients-section {
+  flex: 1;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-right: 2px solid #e0e0e0;
+}
+
+.ingredients-section h2 {
+  color: #d35400;
+  text-decoration: underline;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+}
+.ingredients-div{
+  overflow: scroll;
+  scrollbar-width: none;
+  height: 90%;
+
+}
+.ingredients-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ingredients-section li {
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+/* Steps Section - Middle */
+.steps-section {
+  flex: 2;
+  padding: 10px;
+  background-color: #ffffff;
+  border-right: 2px solid #e0e0e0;
+  text-align: center;
+}
+
+.steps-section h2 {
+  color: #d35400;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  text-decoration: underline;
+}
+.steps-div{
+  overflow: scroll;
+  scrollbar-width: none;
+  height: 90%;
+}
+.steps-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.steps-section li {
+  margin-bottom: 10px;
+  color: #555;
+  font-size: 1.1rem;
+  text-align: right;
+}
+.steps-section li h3 {
+  text-decoration: underline;
+  padding: 0;
+  margin: 5px 0;
+  font-size: 1.8rem;
+  color: #f89756;
+}
+.steps-section li span {
+  margin-right: 50px;
+  font-size: 1.3rem;
+  color: #000000;
+}
+
+/* Info Section - Right */
+.info-section {
+  flex: 1;
+  padding: 10px;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.recipe-info h2 {
+  color: #d35400;
+  text-decoration: underline;
+  font-size: 1.6rem;
+}
+
+.recipe-info p {
+  color: #6c757d;
+}
+
+.labels {
+  margin-top: 20px;
+}
+
+.labels .label {
+  display: inline-block;
+  background-color: #d2691e;
+  color: white;
+  padding: 8px 12px;
+  margin: 5px;
+  font-size: 0.9rem;
+  border-radius: 30px;
+  text-align: center;
+}
+
+.image-gallery {
+  margin-top: 10px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  overflow: scroll;
+  scrollbar-width: none;
+}
+
+.image-gallery img {
+  width: 90%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+
+@media (max-width: 768px) {
   .container {
-    display: flex;
-    flex-direction: row;
-    height: 90vh; /* Stretches the container vertically across most of the screen */
-    width: 95vw; /* Takes most of the screen width */
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    flex-direction: column-reverse;
+    margin: 0; 
+    overflow: scroll;
+    scrollbar-width: none;
   }
-  
-  /* Ingredients Section - Left */
-  .ingredients-section {
-    flex: 1;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-right: 2px solid #e0e0e0;
-  }
-  
-  .ingredients-section h2 {
-    color: #333;
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-  }
-  
-  .ingredients-section ul {
-    list-style: none;
-    padding-left: 0;
-  }
-  
-  .ingredients-section li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 0;
-    border-bottom: 1px solid #ddd;
-    color: #555;
-    font-size: 1.1rem;
-  }
-  
-  /* Steps Section - Middle */
-  .steps-section {
-    flex: 2;
-    padding: 20px;
-    background-color: #ffffff;
-    border-right: 2px solid #e0e0e0;
-    text-align: center;
-  }
-  
-  .steps-section h2 {
-    color: #333;
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-  }
-  
-  .steps-section ol {
-    list-style: none;
-    padding-left: 0;
-  }
-  
-  .steps-section li {
-    margin-bottom: 10px;
-    color: #555;
-    font-size: 1.1rem;
-  }
-  
-  /* Info Section - Right */
+
+  .ingredients-section,
+  .steps-section,
   .info-section {
     flex: 1;
-    padding: 15px;
-    background-color: #f8f9fa;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    padding: 10px;
   }
-  
-  .recipe-info h2 {
-    color: #d35400;
-    font-size: 1.6rem;
+
+  .ingredients-div,.steps-div{
+    overflow: hidden;
   }
-  
-  .recipe-info p {
-    color: #6c757d;
-  }
-  
-  .labels {
-    margin-top: 20px;
-  }
-  
-  .labels .label {
-    display: inline-block;
-    background-color: #17a2b8;
-    color: white;
-    padding: 8px 12px;
-    margin: 5px;
-    font-size: 0.9rem;
-    border-radius: 30px;
-    text-align: center;
-  }
-  
   .image-gallery {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 60%;
-    overflow-y: auto;
+    flex-grow: 0;
+    max-height: 200px;
   }
-  
-  .image-gallery img {
-    width: 100%;
-    border-radius: 10px;
-    object-fit: cover;
+
+  .labels .label {
+    font-size: 0.8rem;
+    padding: 5px 10px;
   }
-  
-  /* Responsive Design for Mobile */
-  @media (max-width: 768px) {
-    .container {
-      flex-direction: column;
-      height: auto;
-      width: 100%;
-    }
-  
-    .ingredients-section,
-    .steps-section,
-    .info-section {
-      flex: 1;
-      padding: 10px;
-    }
-  
-    .image-gallery {
-      flex-grow: 0;
-      max-height: 200px;
-    }
-  
-    .labels .label {
-      font-size: 0.8rem;
-      padding: 5px 10px;
-    }
-  }
-  
+} 
