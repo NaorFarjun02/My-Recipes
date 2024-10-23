@@ -9,6 +9,19 @@ html {
   background-color: #f0f2f5;
   overflow: hidden;
 }
+.home-btn{
+  position: absolute;
+  font-size: 1rem;
+  width: fit-content;
+  height: 3vh;
+  right: 5px;
+  top: 5px;
+  border-radius: 10px;
+  border: none;
+  background-color: #f89756;
+  text-decoration: none;
+  color: #000000;
+}
 
 .container {
   display: flex;

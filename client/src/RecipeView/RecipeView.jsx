@@ -1,9 +1,17 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
 import "./RecipeView.css"; // Add appropriate styling
 
 function RecipeView({ recipe }) {
+  const navigate = useNavigate();
+
   return (
     <div className="container">
+      <button
+        className="home-btn"
+        onClick={() => navigate(`/`)}
+      >Home</button>
       {/* Left Side - Ingredients */}
       <div className="ingredients-section">
         <h2>רשימת מצרכים</h2>
