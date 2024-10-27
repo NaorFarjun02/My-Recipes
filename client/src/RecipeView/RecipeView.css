@@ -9,7 +9,8 @@ html {
   background-color: #f0f2f5;
   overflow: hidden;
 }
-.home-btn{
+
+.home-btn {
   position: absolute;
   font-size: 1rem;
   width: fit-content;
@@ -19,8 +20,13 @@ html {
   border-radius: 10px;
   border: none;
   background-color: #f89756;
-  text-decoration: none;
-  color: #000000;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-btn:hover {
+  background-color: #d68b3f; /* Darker shade on hover */
 }
 
 .container {
@@ -30,11 +36,21 @@ html {
   width: 95vw;
   max-width: 1500px; /* Optional: set a max-width for larger screens */
   background-color: #ffffff;
-  /* border-radius: 15px; */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-
   margin: 0 auto; /* Center the container horizontally */
+  animation: fadeIn 0.5s ease; /* Added animation */
+}
+
+/* Keyframes for fadeIn animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Ingredients Section - Left */
@@ -43,6 +59,11 @@ html {
   padding: 10px;
   background-color: #f8f9fa;
   border-right: 2px solid #e0e0e0;
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.ingredients-section:hover {
+  background-color: #eef1f3; /* Lighten background on hover */
 }
 
 .ingredients-section h2 {
@@ -51,12 +72,13 @@ html {
   font-size: 1.4rem;
   margin-bottom: 15px;
 }
-.ingredients-div{
-  overflow: scroll;
-  scrollbar-width: none;
-  height: 90%;
 
+.ingredients-div {
+  overflow-y: auto; /* Changed to auto for better scrolling */
+  scrollbar-width: thin;
+  height: 90%;
 }
+
 .ingredients-section ul {
   list-style: none;
   padding-left: 0;
@@ -67,6 +89,11 @@ html {
   border-bottom: 1px solid #ddd;
   color: #555;
   font-size: 1.1rem;
+  transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.ingredients-section li:hover {
+  color: #f89756; /* Change color on hover */
 }
 
 /* Steps Section - Middle */
@@ -76,6 +103,11 @@ html {
   background-color: #ffffff;
   border-right: 2px solid #e0e0e0;
   text-align: center;
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.steps-section:hover {
+  background-color: #eef1f3; /* Lighten background on hover */
 }
 
 .steps-section h2 {
@@ -84,11 +116,13 @@ html {
   margin-bottom: 15px;
   text-decoration: underline;
 }
-.steps-div{
-  overflow: scroll;
+
+.steps-div {
+  overflow-y: auto; /* Changed to auto for better scrolling */
   scrollbar-width: none;
   height: 90%;
 }
+
 .steps-section ul {
   list-style: none;
   padding-left: 0;
@@ -99,7 +133,13 @@ html {
   color: #555;
   font-size: 1.1rem;
   text-align: right;
+  transition: transform 0.3s ease; /* Added animation on hover */
 }
+
+.steps-section li:hover {
+  transform: translateY(-5px); /* Lift effect on hover */
+}
+
 .steps-section li h3 {
   text-decoration: underline;
   padding: 0;
@@ -107,6 +147,7 @@ html {
   font-size: 1.8rem;
   color: #f89756;
 }
+
 .steps-section li span {
   margin-right: 50px;
   font-size: 1.3rem;
@@ -121,6 +162,11 @@ html {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.info-section:hover {
+  background-color: #eef1f3; /* Lighten background on hover */
 }
 
 .recipe-info h2 {
@@ -146,6 +192,11 @@ html {
   font-size: 0.9rem;
   border-radius: 30px;
   text-align: center;
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.labels .label:hover {
+  background-color: #b95f1b; /* Darker shade on hover */
 }
 
 .image-gallery {
@@ -155,7 +206,7 @@ html {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  overflow: scroll;
+  overflow-y: auto; /* Changed to auto for better scrolling */
   scrollbar-width: none;
 }
 
@@ -163,15 +214,18 @@ html {
   width: 90%;
   border-radius: 10px;
   object-fit: cover;
+  transition: transform 0.3s ease; /* Added animation */
 }
 
+.image-gallery img:hover {
+  transform: scale(1.05); /* Zoom effect on hover */
+}
 
 @media (max-width: 768px) {
   .container {
     flex-direction: column-reverse;
-    margin: 0; 
-    overflow: scroll;
-    scrollbar-width: none;
+    margin: 0;
+    overflow-y: auto; /* Changed to auto for better scrolling */
   }
 
   .ingredients-section,
@@ -181,9 +235,11 @@ html {
     padding: 10px;
   }
 
-  .ingredients-div,.steps-div{
-    overflow: hidden;
+  .ingredients-div,
+  .steps-div {
+    overflow-y: hidden; /* Prevent scrollbars on mobile */
   }
+
   .image-gallery {
     flex-grow: 0;
     max-height: 200px;
@@ -193,4 +249,4 @@ html {
     font-size: 0.8rem;
     padding: 5px 10px;
   }
-} 
+}

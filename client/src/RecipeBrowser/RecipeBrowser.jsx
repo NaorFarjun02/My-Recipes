@@ -1,45 +1,97 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RecipeBrowser.css";
+import Logo from "../Logo/Logo";
 
 const RecipeBrowser = ({ recipes }) => {
-  const [filter, setFilter] = useState("all"); // State for filtering
+  const [filters, setFilters] = useState(new Set()); // State for multiple filters using Set
   const [sortOption, setSortOption] = useState("default"); // State for sorting
+  const [sortOrder, setSortOrder] = useState("asc"); // State for sort order
   const navigate = useNavigate();
 
-  // Function to handle filtering
-  const filteredRecipes = recipes.filter((recipe) =>
-    filter === "all" ? true : recipe.labels.includes(filter)
-  );
+  // Function to handle adding/removing filters
+  const toggleFilter = (filter) => {
+    setFilters((prevFilters) => {
+      const newFilters = new Set(prevFilters); // Create a new Set based on the previous filters
+      if (newFilters.has(filter)) {
+        newFilters.delete(filter); // Remove filter if already selected
+      } else {
+        newFilters.add(filter); // Add filter if not selected
+      }
+      return newFilters; // Return the updated Set
+    });
+  };
 
-  // Function to handle sorting
-  const sortedRecipes = [...filteredRecipes].sort((a, b) => {
-    if (sortOption === "name") {
-      return a.name.localeCompare(b.name);
+  // Filter recipes based on multiple selected filters
+  const filteredRecipes = useMemo(() => {
+    if (filters.size === 0) return recipes; // If no filters are selected, include all recipes
+
+    const filtered = [];
+    for (const recipe of recipes) {
+      let matchesAll = true; // Assume it matches all filters
+      for (const filter of filters) {
+        if (!recipe.labels.includes(filter)) {
+          matchesAll = false; // Found a filter that doesn't match
+          break; // No need to check further
+        }
+      }
+      if (matchesAll) filtered.push(recipe); // Add recipe if it matches all filters
     }
-    // Default sorting
-    return 0;
-  });
+    return filtered; // Return the filtered recipes
+  }, [recipes, filters]); // Dependencies for memoization
+
+  // Memoized sorting function to avoid unnecessary re-sorting
+  const sortedRecipes = useMemo(() => {
+    if (sortOption === "default") return filteredRecipes; // No sorting needed
+
+    const sortFunctions = {
+      name: (a, b) => a.name.localeCompare(b.name),
+      steps: (a, b) =>
+        sortOrder === "asc"
+          ? a.steps.length - b.steps.length
+          : b.steps.length - a.steps.length,
+      ingredients: (a, b) =>
+        sortOrder === "asc"
+          ? a.ingredients.length - b.ingredients.length
+          : b.ingredients.length - a.ingredients.length,
+    };
+
+    return [...filteredRecipes].sort(sortFunctions[sortOption]);
+  }, [filteredRecipes, sortOption, sortOrder]); // Dependencies for memoization
 
   return (
     <div className="recipe-browser">
       <div className="browser-controls">
-        <h2>המתכונים שלי</h2>
+        <Logo />
         <div className="filters">
-          <button onClick={() => setFilter("all")}>הכל</button>
-          <button onClick={() => setFilter("בישול")}>בישול</button>
-          <button onClick={() => setFilter("אפייה")}>אפייה</button>
-          <button onClick={() => setFilter("דגים")}>דגים</button>
-          <button onClick={() => setFilter("בשרי")}>בשרי</button>
-          <button onClick={() => setFilter("חלבי")}>חלבי</button>
-          <button onClick={() => setFilter("צמחוני")}>צמחוני</button>
-          <button onClick={() => setFilter("קינוח")}>קינוח</button>
+          <button
+            className={filters.size === 0 ? "active" : ""}
+            onClick={() => setFilters(new Set())} // Clear filters
+          >
+            הכל
+          </button>
+          {["בישול", "אפייה", "דגים", "בשרי", "חלבי", "צמחוני", "קינוח"].map(
+            (filter) => (
+              <button
+                key={filter}
+                className={filters.has(filter) ? "active" : ""}
+                onClick={() => toggleFilter(filter)}
+              >
+                {filter}
+              </button>
+            )
+          )}
         </div>
         <div className="sort-options">
-          <label> מיין לפי:</label>
           <select onChange={(e) => setSortOption(e.target.value)}>
-            <option value="default">ברירת מחדל</option>
+            <option value="default">מיין לפי</option>
             <option value="name">שם</option>
+            <option value="steps">כמות שלבים</option>
+            <option value="ingredients">כמות מצרכים</option>
+          </select>
+          <select onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="asc">מהקטן לגדול</option>
+            <option value="desc">מהגדול לקטן</option>
           </select>
         </div>
       </div>
@@ -47,8 +99,7 @@ const RecipeBrowser = ({ recipes }) => {
         <div className="recipe-grid">
           {sortedRecipes.map((recipe, index) => (
             <div key={index} className="recipe-card">
-              <img src={recipe.images[0]} alt={recipe.name} />{" "}
-              {/* Using the first image */}
+              <img src={recipe.images[0]} alt={recipe.name} />
               <h3>{recipe.name}</h3>
               <p>מחבר: {recipe.author}</p>
               <p>{recipe.description}</p>

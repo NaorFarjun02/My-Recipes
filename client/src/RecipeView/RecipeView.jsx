@@ -1,63 +1,59 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
 import "./RecipeView.css"; // Add appropriate styling
 
 function RecipeView({ recipe }) {
   const navigate = useNavigate();
 
+  const renderIngredients = () =>
+    recipe.ingredients.map((item, index) => (
+      <li key={index}>{item}</li>
+    ));
+
+  const renderSteps = () =>
+    Object.entries(recipe.steps).map(([key, item], index) => (
+      <li key={index} id={item.id}>
+        <h3>:שלב {index + 1}</h3>
+        <span>{item}</span>
+      </li>
+    ));
+
+  const renderLabels = () =>
+    recipe.labels.map((label, index) => (
+      <span key={index} className="label">
+        {label}
+      </span>
+    ));
+
+  const renderImages = () =>
+    recipe.images.map((image, index) => (
+      <img key={index} src={image} alt={`תמונה ${index + 1}`} />
+    ));
+
   return (
     <div className="container">
-      <button
-        className="home-btn"
-        onClick={() => navigate(`/`)}
-      >Home</button>
-      {/* Left Side - Ingredients */}
+      <button className="home-btn" onClick={() => navigate(`/`)}>
+        Home
+      </button>
+
       <div className="ingredients-section">
         <h2>רשימת מצרכים</h2>
-        <div className="ingredients-div">
-          <ul>
-            {recipe.ingredients.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
-        </div>
+        <ul className="ingredients-div">{renderIngredients()}</ul>
       </div>
 
-      {/* Middle Side - Steps */}
       <div className="steps-section">
         <h2>שלבי הכנה</h2>
-        <div className="steps-div">
-          <ul>
-            {Object.entries(recipe.steps).map(([key, item], index) => (
-              <li key={index} id={item.id}>
-                <h3>:שלב {key}</h3>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className="steps-div">{renderSteps()}</ul>
       </div>
 
-      {/* Right Side - Info and Image Gallery */}
       <div className="info-section">
         <div className="recipe-info">
           <h2>{recipe.name}</h2>
           <p>נכתב על ידי: {recipe.author}</p>
-          <div className="labels">
-            {recipe.labels.map((label, index) => (
-              <span key={index} className="label">
-                {label}
-              </span>
-            ))}
-          </div>
+          <div className="labels">{renderLabels()}</div>
         </div>
 
-        <div className="image-gallery">
-          {recipe.images.map((image, index) => (
-            <img key={index} src={image} alt={`תמונה ${index + 1}`} />
-          ))}
-        </div>
+        <div className="image-gallery">{renderImages()}</div>
       </div>
     </div>
   );

@@ -1,0 +1,27 @@
+.logo-container {
+  display: none;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.logo-image {
+  width: 100px;
+  max-width: 80%; /* מתאים למובייל */
+  height: auto;
+  transition: transform 0.5s;
+}
+
+.logo-image:hover {
+  transform: scale(3.1);
+}
+
+@media (max-width: 760px) {
+  .logo-image {
+    width: 150px;
+  }
+  .logo-container{
+    padding: 0;
+    margin: 0;
+  }
+}
