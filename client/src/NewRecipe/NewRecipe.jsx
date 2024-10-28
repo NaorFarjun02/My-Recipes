@@ -5,9 +5,11 @@ function NewRecipe({ onSubmit }) {
   const [recipe, setRecipe] = useState({
     name: "",
     author: "",
+    description: "",
     ingredients: [""],
     steps: [""],
     labels: [""],
+    images: [],
   });
 
   const handleChange = useCallback((e) => {
@@ -36,6 +38,14 @@ function NewRecipe({ onSubmit }) {
       const updatedField = prevRecipe[field].filter((_, i) => i !== index);
       return { ...prevRecipe, [field]: updatedField };
     });
+  }, []);
+
+  const handleImageUpload = useCallback((e) => {
+    const files = Array.from(e.target.files);
+    setRecipe((prevRecipe) => ({
+      ...prevRecipe,
+      images: files,
+    }));
   }, []);
 
   const renderArrayFields = useMemo(
@@ -74,8 +84,14 @@ function NewRecipe({ onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(recipe);
-    // onSubmit(recipe);
+
+    const renamedImages = recipe.images.map((file, index) => {
+      const fileExtension = file.name.split(".").pop();
+      const newFileName = `${recipe.name}-${index + 1}.${fileExtension}`;
+      return new File([file], newFileName, { type: file.type });
+    });
+
+    onSubmit({ ...recipe, images: renamedImages });
   };
 
   return (
@@ -101,10 +117,28 @@ function NewRecipe({ onSubmit }) {
           required
         />
       </div>
-
+      <div className="description-section">
+        <label>:תיאור</label>
+        <textarea
+          name="description"
+          value={recipe.description}
+          onChange={handleChange}
+          rows="4"
+          required
+        />
+      </div>
+      <div className="image-upload-section">
+        <label>:העלה תמונות</label>
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleImageUpload}
+        />
+      </div>
+      {renderArrayFields("ingredients", "מצרכים")}
       {renderArrayFields("labels", "תגיות")}
       {renderArrayFields("steps", "שלבי הכנה")}
-      {renderArrayFields("ingredients", "מצרכים")}
 
       <button type="submit" className="submit-btn">
         שמור מתכון

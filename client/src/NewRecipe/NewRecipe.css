@@ -61,6 +61,32 @@ input {
 }
 
 
+.description-section,
+.image-upload-section {
+  margin: 10px 0;
+}
+
+.description-section label,
+.image-upload-section label {
+  display: block;
+  color: #555;
+  font-size: 1.1rem;
+  margin: 10px 0 5px;
+}
+
+.description-section textarea {
+  width: 90%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  resize: none;
+  text-align: right;
+}
+
+
+
+
 .ingredients-section-new,
 .steps-section-new,
 .labels-section-new {
