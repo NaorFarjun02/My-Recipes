@@ -62,7 +62,10 @@ const RecipeBrowser = ({ recipes }) => {
   return (
     <div className="recipe-browser">
       <div className="browser-controls">
-        <Logo />
+        <div className="add-recipe">
+          <Logo />
+        </div>
+
         <div className="filters">
           <button
             className={filters.size === 0 ? "active" : ""}

@@ -8,6 +8,7 @@ import {
 import RecipeBrowser from "./RecipeBrowser/RecipeBrowser"; // Import the RecipeBrowser component
 import RecipeView from "./RecipeView/RecipeView";
 import "./App.css"; // Add global styles if needed
+import NewRecipe from "./NewRecipe/NewRecipe";
 const sampleRecipes = [
   {
     id: 1,
@@ -544,6 +545,9 @@ function App() {
 
           {/* עמוד צפייה במתכון יחיד */}
           <Route path="/recipe/:id" element={<RecipeViewWrapper />} />
+
+          {/* עמוד הוספת מתכון */}
+          <Route path="/new-recipe" element={<NewRecipe/>}/>
         </Routes>
       </div>
     </Router>

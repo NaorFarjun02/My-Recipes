@@ -1,0 +1,151 @@
+.recipe-form {
+  width: 90vw;
+  height: 85vh;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  scrollbar-width: none;
+}
+
+.recipe-form h2 {
+  text-align: center;
+  color: #ff7700;
+  text-decoration: underline;
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  color: #555;
+  font-size: 1.1rem;
+  margin: 10px 0 5px;
+}
+
+input {
+  width: 90%;
+  max-height: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  text-align: right;
+}
+
+
+.name-section,
+.author-section{
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.name-section label,
+.author-section label{
+  width: 10%;
+  font-size: 1.5em;
+  text-align: center;
+}
+.name-section input,
+.author-section input{
+  width: 50%;
+}
+
+
+.ingredients-section-new,
+.steps-section-new,
+.labels-section-new {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  align-items: center;
+  border: 1 px black solid;
+  width: 100%;
+  margin: 10px 0;
+}
+.ingredients-section-new h3,
+.steps-section-new h3,
+.labels-section-new h3 {
+  font-size: 1.5rem;
+  text-decoration: underline;
+  color: #ff7700;
+}
+
+
+.ingredients-item,
+.steps-item,
+.labels-item {
+  display: flex;
+  flex-direction: row-reverse;
+  width: 70%;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.add-ingredients-btn,
+.add-steps-btn,
+.add-labels-btn,
+.remove-ingredients-field-btn,
+.remove-steps-field-btn,
+.remove-labels-field-btn {
+  font-size: 0.9rem;
+  color: #ffffff;
+  background-color: #f2a43f;
+  border: none;
+  padding: 10px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0q.3s ease;
+}
+
+.add-ingredients-btn,
+.add-steps-btn,
+.add-labels-btn {
+  width: 80%;
+  font-size: 1.4em;
+}
+
+.remove-ingredients-field-btn,
+.remove-steps-field-btn,
+.remove-labels-field-btn {
+  width: 10%;
+  max-width: 70px;
+  margin: 0;
+}
+
+.submit-btn {
+  margin: 20px 0;
+  width: 100%;
+  background-color: #ed731c;
+  color: #ffffff;
+  font-size: 1.2rem;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #e06107;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

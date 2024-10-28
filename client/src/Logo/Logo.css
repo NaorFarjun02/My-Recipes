@@ -13,7 +13,7 @@
 }
 
 .logo-image:hover {
-  transform: scale(3.1);
+  transform: scale(1.5);
 }
 
 @media (max-width: 760px) {
