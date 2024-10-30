@@ -9,74 +9,99 @@ const port = 3001;
 const db = new pg.Client({
   user: "postgres",
   host: "localhost",
-  database: "Cats",
-  password: "postgres",
-  port: 5432,
+  database: "Recipes",
+  password: "159633",
+  port: 55555,
 });
-db.connect();
+
+// אתחול השרת ויצירת הטבלה
+(async () => {
+  try {
+    await db.connect();
+    console.log("Connected to PostgreSQL");
+
+    await createTable(); // יצירת הטבלה
+  } catch (error) {
+    console.error("Error connecting to database:", error);
+    process.exit(1); // סגירת התהליך אם החיבור נכשל
+  }
+})();
 
 app.use(express.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors()); // Enable CORS
 
-async function getCats() {
-  let result = await db.query("SELECT * FROM cats");
-  return result.rows;
+async function createTable() {
+  const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS recipes (
+      id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+      name TEXT,
+      author TEXT,
+      description TEXT,
+      labels TEXT[],
+      images TEXT[],
+      ingredients TEXT[],
+      steps TEXT[]
+    );
+  `;
+
+  try {
+    await db.query(createTableQuery);
+    console.log("Table 'recipes' created or already exists.");
+  } catch (error) {
+    console.error("Error creating table:", error);
+  }
 }
 
-app.get("/getCats", async (req, res) => {
-  const data = await getCats();
-  res.json(data);
-});
+// function to insert recipe to db
+async function insertRecipe(recipe) {
+  const { name, author, description, labels, images, ingredients, steps } =
+    recipe;
 
-app.post("/addCat", async (req, res) => {
-  const { name, location, rack, mark } = req.body;
   try {
-    await db.query(
-      "INSERT INTO cats (name, location, rack, mark) VALUES ($1, $2, $3, $4)",
-      [name, location, rack, mark]
+    const result = await db.query(
+      `INSERT INTO recipes (name, author, description, labels, images, ingredients, steps)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [
+        name,
+        author,
+        description,
+        labels || [],
+        images || [],
+        ingredients || [],
+        steps || [],
+      ]
     );
-    try {
-      const result = await db.query("SELECT * FROM cats");
-      res.status(201).json(result);
-    } catch (err) {
-      console.log(err);
-    }
-  } catch (err) {
-    console.log(err);
+    console.log(`Recipe insert to db`);
+    return result;
+  } catch (error) {
+    console.error("Error insert recipe to db: ", error);
+  }
+}
+
+// טיפול בבקשה לנתיב "/"
+app.get("/", async (req, res) => {
+  try {
+    const result = await db.query("SELECT NOW()");
+    res.json({
+      message: "Database connected successfully",
+      time: result.rows[0].now,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Database connection failed" });
   }
 });
 
-app.put("/updateCat/:id", async (req, res) => {
-  const { id, name, location, rack, mark } = req.body;
+app.post("/new-recipe", async (req, res) => {
   try {
-    await db.query(
-      "UPDATE cats SET name = $1, location = $2, rack = $3, mark = $4 WHERE id = $5",
-      [name, location, rack, mark, id]
-    );
-    try {
-      const result = await db.query("SELECT * FROM cats");
-      res.status(201).json(result);
-    } catch (err) {
-      console.log(err);
-    }
-  } catch (err) {
-    console.log(err);
-  }
-});
+    // Insert the new recipe into the 'recipes' table
+    result = insertRecipe(req.body);
 
-app.delete("/deleteCat/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query("DELETE from cats WHERE id = $1", [id]);
-    try {
-      const result = await db.query("SELECT * FROM cats");
-      res.status(201).json(result);
-    } catch (err) {
-      console.log(err);
-    }
-  } catch (err) {
-    console.log(err);
+    // Respond with the newly created recipe
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error inserting recipe:", error);
+    res.status(500).json({ error: "Failed to save the recipe" });
   }
 });
 

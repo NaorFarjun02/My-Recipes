@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -481,8 +480,22 @@ const sampleRecipes = [
 ];
 
 function App() {
-  const addNewrecipe = (recipe) => {
+  const addNewrecipe = ( recipe) => {
     console.log(recipe);
+    // e.preventDefault();
+    try {
+      const response = fetch("http://localhost:3001/new-recipe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(recipe),
+      });
+      const data = response;
+      console.log("Recipe saved:", data);
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+    }
   };
 
   return (
