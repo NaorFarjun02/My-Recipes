@@ -483,29 +483,6 @@ const sampleRecipes = [
 function App() {
   const [recipes, setRecipes] = useState([]);
 
-  const addNewrecipe = async (recipe) => {
-
-  
-
-    for (let [key, value] of recipe.entries()) {
-      console.log(key, value);
-    }
-    try {
-      const response = await fetch("http://localhost:3001/new-recipe", {
-        method: "POST",
-        body: recipe,
-      });
-
-      if (response.ok) {
-        alert("Recipe uploaded successfully!");
-      } else {
-        alert("Failed to upload recipe.");
-      }
-    } catch (error) {
-      console.error("Error uploading recipe:", error);
-    }
-  };
-
   useEffect(() => {
     fetch("http://localhost:3001/get-recipes") // Replace with your server's URL
       .then((response) => response.json())
@@ -526,10 +503,7 @@ function App() {
           <Route path="/recipe/:id" element={<RecipeViewWrapper />} />
 
           {/* עמוד הוספת מתכון */}
-          <Route
-            path="/new-recipe"
-            element={<NewRecipe onSubmit={addNewrecipe} />}
-          />
+          <Route path="/new-recipe" element={<NewRecipe />} />
         </Routes>
       </div>
     </Router>

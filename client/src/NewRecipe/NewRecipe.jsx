@@ -1,7 +1,11 @@
 import React, { useState, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+
 import "./NewRecipe.css";
 
-function NewRecipe({ onSubmit }) {
+function NewRecipe() {
+  const navigate = useNavigate();
+
   const [images, setImages] = useState([]);
   const [recipe, setRecipe] = useState({
     name: "",
@@ -78,6 +82,26 @@ function NewRecipe({ onSubmit }) {
   const handleImageChange = (e) => {
     setImages([...e.target.files]); // Store all selected files
   };
+  const addNewrecipe = async (recipe) => {
+    for (let [key, value] of recipe.entries()) {
+      console.log(key, value);
+    }
+    try {
+      const response = await fetch("http://localhost:3001/new-recipe", {
+        method: "POST",
+        body: recipe,
+      });
+
+      if (response.ok) {
+        alert("Recipe uploaded successfully!");
+      } else {
+        alert("Failed to upload recipe.");
+      }
+      navigate(`/`);
+    } catch (error) {
+      console.error("Error uploading recipe:", error);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setRecipe({
@@ -128,7 +152,7 @@ function NewRecipe({ onSubmit }) {
       recipeFormData.append("images", image);
     });
 
-    onSubmit(recipeFormData);
+    addNewrecipe(recipeFormData);
   };
 
   return (
