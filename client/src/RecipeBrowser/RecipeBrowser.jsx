@@ -102,7 +102,7 @@ const RecipeBrowser = ({ recipes }) => {
         <div className="recipe-grid">
           {sortedRecipes.map((recipe, index) => (
             <div key={index} className="recipe-card">
-              <img src={recipe.images[0]} alt={recipe.name} />
+              {/* <img src={recipe.images[0]} alt={recipe.name} /> */}
               <h3>{recipe.name}</h3>
               <p>מחבר: {recipe.author}</p>
               <p>{recipe.description}</p>

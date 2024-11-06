@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import "./NewRecipe.css";
 
 function NewRecipe({ onSubmit }) {
+  const [images, setImages] = useState([]);
   const [recipe, setRecipe] = useState({
     name: "",
     author: "",
@@ -10,7 +11,7 @@ function NewRecipe({ onSubmit }) {
     steps: [""],
     labels: [""],
     images: [],
-  });
+  }); //a json that contain the data the user enter
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -38,14 +39,6 @@ function NewRecipe({ onSubmit }) {
       const updatedField = prevRecipe[field].filter((_, i) => i !== index);
       return { ...prevRecipe, [field]: updatedField };
     });
-  }, []);
-
-  const handleImageUpload = useCallback((e) => {
-    const files = Array.from(e.target.files);
-    setRecipe((prevRecipe) => ({
-      ...prevRecipe,
-      images: files,
-    }));
   }, []);
 
   const renderArrayFields = useMemo(
@@ -82,16 +75,60 @@ function NewRecipe({ onSubmit }) {
     [recipe, handleArrayChange, removeField, addField]
   );
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    setImages([...e.target.files]); // Store all selected files
+  };
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setRecipe({
+      name: "מרק ירקות עשיר",
+      author: "מירב כהן",
+      description: "מרק ירקות עשיר ומזין עם הרבה ירקות ותיבול מיוחד.",
+      labels: ["בישול", "צמחוני", "מרקים"],
+      ingredients: [
+        "4 תפוחי אדמה",
+        "2 גזרים",
+        "2 בצלים",
+        "1 קישוא",
+        "1 בטטה",
+        "4 כפות שמן זית",
+        "2 כפות מלח",
+        "1 כף פלפל שחור",
+        "1 כף כמון",
+        "3 עלי דפנה",
+        "1/2 כף כורכום",
+        "2 ליטר מים",
+        "4 שיני שום קצוצות",
+        "1/2 כף פפריקה מתוקה",
+        "כף אבקת מרק ירקות",
+      ],
+      steps: [
+        "לקל peel ולחתוך את כל הירקות לקוביות.",
+        "לחמם שמן זית בסיר גדול ולהוסיף את הבצל והשום.",
+        "לטגן עד שהבצל הופך לשקוף.",
+        "להוסיף את שאר הירקות ולערבב למשך 5 דקות.",
+        "להוסיף את התבלינים ולערבב היטב.",
+        "להוסיף את המים ולערבב.",
+        "להביא לרתיחה ולהוריד את האש לבישול איטי.",
+        "לבשל במשך 40 דקות עד שהירקות מתרככים.",
+        "להוציא את עלי הדפנה ולהוסיף מלח לפי הטעם.",
+        "להגיש את המרק חם עם מעט שמן זית מעל.",
+      ],
+    });
+    const recipeFormData = new FormData(); // the data that send to server
+    recipeFormData.append("name", recipe.name);
+    recipeFormData.append("author", recipe.author);
+    recipeFormData.append("description", recipe.description);
+    recipeFormData.append("ingredients", JSON.stringify(recipe.ingredients));
+    recipeFormData.append("steps", JSON.stringify(recipe.steps));
+    recipeFormData.append("labels", JSON.stringify(recipe.labels));
 
-    const renamedImages = recipe.images.map((file, index) => {
-      const fileExtension = file.name.split(".").pop();
-      const newFileName = `${recipe.name}-${index + 1}.${fileExtension}`;
-      return new File([file], newFileName, { type: file.type });
+    // Append each image to the form data
+    images.forEach((image) => {
+      recipeFormData.append("images", image);
     });
 
-    onSubmit({ ...recipe, images: renamedImages });
+    onSubmit(recipeFormData);
   };
 
   return (
@@ -133,7 +170,7 @@ function NewRecipe({ onSubmit }) {
           type="file"
           multiple
           accept="image/*"
-          onChange={handleImageUpload}
+          onChange={handleImageChange}
         />
       </div>
       {renderArrayFields("ingredients", "מצרכים")}

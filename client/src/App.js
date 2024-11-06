@@ -8,6 +8,7 @@ import RecipeBrowser from "./RecipeBrowser/RecipeBrowser"; // Import the RecipeB
 import RecipeView from "./RecipeView/RecipeView";
 import "./App.css"; // Add global styles if needed
 import NewRecipe from "./NewRecipe/NewRecipe";
+import { useEffect, useState } from "react";
 const sampleRecipes = [
   {
     id: 1,
@@ -480,30 +481,46 @@ const sampleRecipes = [
 ];
 
 function App() {
-  const addNewrecipe = ( recipe) => {
-    console.log(recipe);
-    // e.preventDefault();
+  const [recipes, setRecipes] = useState([]);
+
+  const addNewrecipe = async (recipe) => {
+
+  
+
+    for (let [key, value] of recipe.entries()) {
+      console.log(key, value);
+    }
     try {
-      const response = fetch("http://localhost:3001/new-recipe", {
+      const response = await fetch("http://localhost:3001/new-recipe", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(recipe),
+        body: recipe,
       });
-      const data = response;
-      console.log("Recipe saved:", data);
+
+      if (response.ok) {
+        alert("Recipe uploaded successfully!");
+      } else {
+        alert("Failed to upload recipe.");
+      }
     } catch (error) {
-      console.error("Error saving recipe:", error);
+      console.error("Error uploading recipe:", error);
     }
   };
+
+  useEffect(() => {
+    fetch("http://localhost:3001/get-recipes") // Replace with your server's URL
+      .then((response) => response.json())
+      .then((data) => {
+        setRecipes(data);
+      })
+      .catch((error) => console.error("Error fetching recipes:", error));
+  }, []);
 
   return (
     <Router>
       <div className="App">
         <Routes>
           {/* עמוד ברירת מחדל - כלל המתכונים */}
-          <Route path="/" element={<RecipeBrowser recipes={sampleRecipes} />} />
+          <Route path="/" element={<RecipeBrowser recipes={recipes} />} />
 
           {/* עמוד צפייה במתכון יחיד */}
           <Route path="/recipe/:id" element={<RecipeViewWrapper />} />
@@ -519,7 +536,7 @@ function App() {
   );
 }
 
-// פונקציה שעוטפת את RecipeView ומעבירה את המתכון לפי ה-ID מה-URL
+// function thet set the RecipeView with the recipe base on the ID in the URL
 function RecipeViewWrapper() {
   const { id } = useParams();
   const recipe = sampleRecipes.find((recipe) => recipe.id === parseInt(id));
