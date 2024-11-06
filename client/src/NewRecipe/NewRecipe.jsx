@@ -8,15 +8,50 @@ function NewRecipe() {
 
   const [images, setImages] = useState([]);
   const [recipe, setRecipe] = useState({
-    name: "",
-    author: "",
-    description: "",
-    ingredients: [""],
-    steps: [""],
-    labels: [""],
-    images: [],
+    name: "מרק ירקות עשיר",
+    author: "מירב כהן",
+    description: "מרק ירקות עשיר ומזין עם הרבה ירקות ותיבול מיוחד.",
+    labels: ["בישול", "צמחוני", "מרקים"],
+    ingredients: [
+      "4 תפוחי אדמה",
+      "2 גזרים",
+      "2 בצלים",
+      "1 קישוא",
+      "1 בטטה",
+      "4 כפות שמן זית",
+      "2 כפות מלח",
+      "1 כף פלפל שחור",
+      "1 כף כמון",
+      "3 עלי דפנה",
+      "1/2 כף כורכום",
+      "2 ליטר מים",
+      "4 שיני שום קצוצות",
+      "1/2 כף פפריקה מתוקה",
+      "כף אבקת מרק ירקות",
+    ],
+    steps: [
+      "לקל peel ולחתוך את כל הירקות לקוביות.",
+      "לחמם שמן זית בסיר גדול ולהוסיף את הבצל והשום.",
+      "לטגן עד שהבצל הופך לשקוף.",
+      "להוסיף את שאר הירקות ולערבב למשך 5 דקות.",
+      "להוסיף את התבלינים ולערבב היטב.",
+      "להוסיף את המים ולערבב.",
+      "להביא לרתיחה ולהוריד את האש לבישול איטי.",
+      "לבשל במשך 40 דקות עד שהירקות מתרככים.",
+      "להוציא את עלי הדפנה ולהוסיף מלח לפי הטעם.",
+      "להגיש את המרק חם עם מעט שמן זית מעל.",
+    ],
   }); //a json that contain the data the user enter
 
+  // {
+  //   name: "",
+  //   author: "",
+  //   description: "",
+  //   ingredients: [""],
+  //   steps: [""],
+  //   labels: [""],
+  //   images: [],
+  // }
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setRecipe((prevRecipe) => ({ ...prevRecipe, [name]: value }));
@@ -104,41 +139,7 @@ function NewRecipe() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setRecipe({
-      name: "מרק ירקות עשיר",
-      author: "מירב כהן",
-      description: "מרק ירקות עשיר ומזין עם הרבה ירקות ותיבול מיוחד.",
-      labels: ["בישול", "צמחוני", "מרקים"],
-      ingredients: [
-        "4 תפוחי אדמה",
-        "2 גזרים",
-        "2 בצלים",
-        "1 קישוא",
-        "1 בטטה",
-        "4 כפות שמן זית",
-        "2 כפות מלח",
-        "1 כף פלפל שחור",
-        "1 כף כמון",
-        "3 עלי דפנה",
-        "1/2 כף כורכום",
-        "2 ליטר מים",
-        "4 שיני שום קצוצות",
-        "1/2 כף פפריקה מתוקה",
-        "כף אבקת מרק ירקות",
-      ],
-      steps: [
-        "לקל peel ולחתוך את כל הירקות לקוביות.",
-        "לחמם שמן זית בסיר גדול ולהוסיף את הבצל והשום.",
-        "לטגן עד שהבצל הופך לשקוף.",
-        "להוסיף את שאר הירקות ולערבב למשך 5 דקות.",
-        "להוסיף את התבלינים ולערבב היטב.",
-        "להוסיף את המים ולערבב.",
-        "להביא לרתיחה ולהוריד את האש לבישול איטי.",
-        "לבשל במשך 40 דקות עד שהירקות מתרככים.",
-        "להוציא את עלי הדפנה ולהוסיף מלח לפי הטעם.",
-        "להגיש את המרק חם עם מעט שמן זית מעל.",
-      ],
-    });
+
     const recipeFormData = new FormData(); // the data that send to server
     recipeFormData.append("name", recipe.name);
     recipeFormData.append("author", recipe.author);
@@ -152,7 +153,7 @@ function NewRecipe() {
       recipeFormData.append("images", image);
     });
 
-    addNewrecipe(recipeFormData);
+    await addNewrecipe(recipeFormData);
   };
 
   return (

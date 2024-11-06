@@ -34,32 +34,13 @@ const db = new pg.Client({
 
 app.use(express.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors()); // Enable CORS
+app.use(
+  cors({
+    origin: "http://localhost:3000", // הכתובת של צד הלקוח (React)
+  })
+); // Enable CORS
+app.use("/images", express.static(path.join(__dirname, "images"))); // הגדרת express.static לשירות התמונות מתוך תיקיית images
 
-//setup file-system to save recipes images
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     const recipeName = req.body.name;
-//     const dir = `images/${recipeName}`;
-
-//     // Create the folder if it doesn't exist
-//     if (!fs.existsSync(dir)) {
-//       fs.mkdirSync(dir, { recursive: true });
-//     }
-
-//     cb(null, dir);
-//   },
-//   filename: (req, file, cb) => {
-//     const recipeName = req.body.name;
-//     const ext = path.extname(file.originalname);
-
-//     // Find the number of files already in the directory for sequential naming
-//     const files = fs.readdirSync(`images/${recipeName}`);
-//     const seqNumber = files.length + 1; // Next sequence number
-
-//     cb(null, `${recipeName}-${seqNumber}${ext}`);
-//   },
-// });
 const upload = multer({ dest: "/upload-temp" }); //folder to save the images befor move to new folder base on the name of the recipe+id
 
 //create the DB table if not exsist
@@ -123,18 +104,43 @@ app.get("/", async (req, res) => {
 
 app.get("/get-recipes", async (req, res) => {
   try {
-    const recipes = await db.query("SELECT * FROM recipes");
-    // console.log(recipes.rows);
+    const recipes = (await db.query("SELECT * FROM recipes")).rows;
+    const recipesWithImages = recipes.map((recipe) => {
+      const recipeName = (recipe.name);
+      
+      const recipeDir = path.join(
+        __dirname,
+        "images",
+        `${recipeName}-${recipe.id}`
+      );
 
-    res.json(recipes.rows);
-  } catch (error) {
-    res.status(500).json({ error: "Database connection failed" });
+      let firstImageUrl = null;
+      if (fs.existsSync(recipeDir)) {
+        
+        const images = fs.readdirSync(recipeDir);
+        if (images.length > 0) {
+          const recipeName = encodeURIComponent(recipe.name);
+
+          firstImageUrl = `/images/${recipeName}-${recipe.id}/${images[0]}`; // הנתיב של התמונה הראשונה
+        }
+      }
+
+      return {
+        ...recipe,
+        firstImageUrl,
+      };
+    });
+
+    res.json(recipesWithImages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch recipes." });
   }
 });
 
 app.post("/new-recipe", upload.array("images"), async (req, res) => {
   const images = req.files;
-  const recipeName = req.body.name;
+  const recipeName = (req.body.name);
   try {
     // Insert the new recipe into the 'recipes' table
 
