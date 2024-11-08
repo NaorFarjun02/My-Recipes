@@ -489,7 +489,6 @@ function App() {
       .then((data) => {
         setRecipes(data);
         console.log(data[0].firstImageUrl);
-        
       })
       .catch((error) => console.error("Error fetching recipes:", error));
   }, []);
