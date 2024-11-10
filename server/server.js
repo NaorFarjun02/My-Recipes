@@ -105,9 +105,13 @@ app.get("/", async (req, res) => {
 app.get("/get-recipes", async (req, res) => {
   try {
     const recipes = (await db.query("SELECT * FROM recipes")).rows;
+    
+    if (!recipes) {
+      return res.status(404).json({ error: "Recipes not found" });
+    }
     const recipesWithImages = recipes.map((recipe) => {
-      const recipeName = (recipe.name);
-      
+      const recipeName = recipe.name;
+
       const recipeDir = path.join(
         __dirname,
         "images",
@@ -116,7 +120,6 @@ app.get("/get-recipes", async (req, res) => {
 
       let firstImageUrl = null;
       if (fs.existsSync(recipeDir)) {
-        
         const images = fs.readdirSync(recipeDir);
         if (images.length > 0) {
           const recipeName = encodeURIComponent(recipe.name);
@@ -138,9 +141,44 @@ app.get("/get-recipes", async (req, res) => {
   }
 });
 
+app.get("/get-recipe/:id", async (req, res) => {
+  try {
+    const recipe = (
+      await db.query("SELECT * FROM recipes WHERE ID=$1", [req.params.id[1]])
+    ).rows[0];
+
+    if (!recipe) {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
+
+    const recipeDir = path.join(
+      __dirname,
+      "images",
+      `${recipe.name}-${recipe.id}`
+    );
+    let images = [];
+
+    if (fs.existsSync(recipeDir)) {
+      // קריאת כלל התמונות בתיקיית המתכון
+      images = fs.readdirSync(recipeDir).map((image) => {
+        const recipeName = encodeURIComponent(recipe.name);
+        return `/images/${recipeName}-${recipe.id}/${image}`;
+      });
+    }
+
+    res.json({
+      ...recipe,
+      images, // מערך נתיבי התמונות
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch recipes." });
+  }
+});
+
 app.post("/new-recipe", upload.array("images"), async (req, res) => {
   const images = req.files;
-  const recipeName = (req.body.name);
+  const recipeName = req.body.name;
   try {
     // Insert the new recipe into the 'recipes' table
 

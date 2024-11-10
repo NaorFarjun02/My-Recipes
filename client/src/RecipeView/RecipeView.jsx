@@ -1,14 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./RecipeView.css"; // Add appropriate styling
+const apiUrl = process.env.REACT_APP_API_URL;
 
 function RecipeView({ recipe }) {
   const navigate = useNavigate();
 
   const renderIngredients = () =>
-    recipe.ingredients.map((item, index) => (
-      <li key={index}>{item}</li>
-    ));
+    recipe.ingredients.map((item, index) => <li key={index}>{item}</li>);
 
   const renderSteps = () =>
     Object.entries(recipe.steps).map(([key, item], index) => (
@@ -27,7 +26,7 @@ function RecipeView({ recipe }) {
 
   const renderImages = () =>
     recipe.images.map((image, index) => (
-      <img key={index} src={image} alt={`תמונה ${index + 1}`} />
+      <img key={index} src={`${apiUrl}${image}`} alt={`תמונה ${index + 1}`} />
     ));
 
   return (

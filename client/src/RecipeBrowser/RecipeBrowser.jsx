@@ -1,14 +1,13 @@
 import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import "./RecipeBrowser.css";
 import Logo from "../Logo/Logo";
+import { useNavigate } from "react-router-dom";
 
 const RecipeBrowser = ({ recipes }) => {
   const [filters, setFilters] = useState(new Set()); // State for multiple filters using Set
   const [sortOption, setSortOption] = useState("default"); // State for sorting
   const [sortOrder, setSortOrder] = useState("asc"); // State for sort order
   const navigate = useNavigate();
-
   // Function to handle adding/removing filters
   const toggleFilter = (filter) => {
     setFilters((prevFilters) => {
@@ -102,7 +101,10 @@ const RecipeBrowser = ({ recipes }) => {
         <div className="recipe-grid">
           {sortedRecipes.map((recipe, index) => (
             <div key={index} className="recipe-card">
-              <img src={`http://localhost:3001${recipe.firstImageUrl}`} alt={recipe.name} />
+              <img
+                src={`http://localhost:3001${recipe.firstImageUrl}`}
+                alt={recipe.name}
+              />
               <h3>{recipe.name}</h3>
               <p>מחבר: {recipe.author}</p>
               <p>{recipe.description}</p>
@@ -115,7 +117,7 @@ const RecipeBrowser = ({ recipes }) => {
               </div>
               <button
                 className="view-recipe"
-                onClick={() => navigate(`/recipe/${recipe.id}`)}
+                onClick={() => navigate(`/recipe/:${recipe.id}`)}
               >
                 צפיה במתכון
               </button>
