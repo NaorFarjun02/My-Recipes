@@ -17,7 +17,7 @@ function RecipeView({ recipe }) {
       </li>
     ));
 
-  const renderLabels = () =>
+  const renderLabels = () =>    
     recipe.labels.map((label, index) => (
       <span key={index} className="label">
         {label}

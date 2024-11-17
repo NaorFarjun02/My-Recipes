@@ -178,7 +178,12 @@ app.get("/get-recipe/:id", async (req, res) => {
     const recipe = (
       await db.query(
         `SELECT 
-          *,
+          r.id ,
+          r.name ,
+          r.author,
+          r.description,
+          r.ingredients, 
+          r.steps, 
           ARRAY_AGG(l.name) AS labels
         FROM 
             recipes r

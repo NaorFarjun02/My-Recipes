@@ -19,22 +19,7 @@ const RecipeBrowser = ({ recipes }) => {
         setFiltersOptions(new Set(data));
       })
       .catch((error) => console.error("Error fetching labels:", error));
-    // const fetchFilters = async () => {
-
-    //   try {
-    //     const response = await fetch(`${apiUrl}/get-labels`);
-    //     // if (!response.ok) throw new Error("Failed to fetch labels");
-    //     const data = await response.json();
-    //     const serverLaels = new Set(data); // Convert the array to a Set
-    //     console.log(serverLaels);
-
-    //     setFilters(serverLaels); // Update the state with filters from the server
-    //   } catch (error) {
-    //     console.error("Error fetching filters:", error);
-    //   }
-    // };
-
-    // fetchFilters();
+    
   }, []);
   const toggleFilter = (filter) => {
     setFilters((prevFilters) => {
@@ -155,3 +140,8 @@ const RecipeBrowser = ({ recipes }) => {
 };
 
 export default RecipeBrowser;
+
+
+
+
+

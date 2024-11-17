@@ -51,11 +51,9 @@ function RecipeViewWrapper() {
       .then((response) => response.json())
       .then((data) => {
         setRecipe(data);
-        console.log(data[0].firstImageUrl);
       })
       .catch((error) => console.error("Error fetching recipes:", error));
   }, [id]);
-  // getRecipe(id);
 
   if (!recipe) {
     return <div>המתכון לא נמצא</div>;
