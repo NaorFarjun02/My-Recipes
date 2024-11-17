@@ -1,14 +1,41 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import "./RecipeBrowser.css";
 import Logo from "../Logo/Logo";
 import { useNavigate } from "react-router-dom";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 const RecipeBrowser = ({ recipes }) => {
   const [filters, setFilters] = useState(new Set()); // State for multiple filters using Set
+  const [filtersOptions, setFiltersOptions] = useState(new Set());//State for all the labels 
   const [sortOption, setSortOption] = useState("default"); // State for sorting
   const [sortOrder, setSortOrder] = useState("asc"); // State for sort order
   const navigate = useNavigate();
   // Function to handle adding/removing filters
+
+  useEffect(() => {
+    fetch(`${apiUrl}/get-labels`)
+      .then((response) => response.json())
+      .then((data) => {
+        setFiltersOptions(new Set(data));
+      })
+      .catch((error) => console.error("Error fetching labels:", error));
+    // const fetchFilters = async () => {
+
+    //   try {
+    //     const response = await fetch(`${apiUrl}/get-labels`);
+    //     // if (!response.ok) throw new Error("Failed to fetch labels");
+    //     const data = await response.json();
+    //     const serverLaels = new Set(data); // Convert the array to a Set
+    //     console.log(serverLaels);
+
+    //     setFilters(serverLaels); // Update the state with filters from the server
+    //   } catch (error) {
+    //     console.error("Error fetching filters:", error);
+    //   }
+    // };
+
+    // fetchFilters();
+  }, []);
   const toggleFilter = (filter) => {
     setFilters((prevFilters) => {
       const newFilters = new Set(prevFilters); // Create a new Set based on the previous filters
@@ -72,17 +99,15 @@ const RecipeBrowser = ({ recipes }) => {
           >
             הכל
           </button>
-          {["בישול", "אפייה", "דגים", "בשרי", "חלבי", "צמחוני", "קינוח"].map(
-            (filter) => (
-              <button
-                key={filter}
-                className={filters.has(filter) ? "active" : ""}
-                onClick={() => toggleFilter(filter)}
-              >
-                {filter}
-              </button>
-            )
-          )}
+          {[...filtersOptions].map((filter) => (
+            <button
+              key={filter}
+              className={filters.has(filter) ? "active" : ""}
+              onClick={() => toggleFilter(filter)}
+            >
+              {filter}
+            </button>
+          ))}
         </div>
         <div className="sort-options">
           <select onChange={(e) => setSortOption(e.target.value)}>

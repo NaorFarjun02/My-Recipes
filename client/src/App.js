@@ -15,11 +15,10 @@ function App() {
   const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
-    fetch(`${apiUrl}/get-recipes`) // Replace with your server's URL
+    fetch(`${apiUrl}/get-recipes`)
       .then((response) => response.json())
       .then((data) => {
         setRecipes(data);
-        console.log(data[0].firstImageUrl);
       })
       .catch((error) => console.error("Error fetching recipes:", error));
   }, []);
@@ -29,12 +28,7 @@ function App() {
       <div className="App">
         <Routes>
           {/* עמוד ברירת מחדל - כלל המתכונים */}
-          <Route
-            path="/"
-            element={
-              <RecipeBrowser recipes={recipes}  />
-            }
-          />
+          <Route path="/" element={<RecipeBrowser recipes={recipes} />} />
 
           {/* עמוד צפייה במתכון יחיד */}
           <Route path="/recipe/:id" element={<RecipeViewWrapper />} />
@@ -50,7 +44,7 @@ function App() {
 // function thet set the RecipeView with the recipe base on the ID in the URL
 function RecipeViewWrapper() {
   const [recipe, setRecipe] = useState();
-  const {id} = useParams();
+  const { id } = useParams();
 
   useEffect(() => {
     fetch(`${apiUrl}/get-recipe/${id}`) // Replace with your server's URL
