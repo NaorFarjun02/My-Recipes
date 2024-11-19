@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RecipeView.css"; // Add appropriate styling
 const apiUrl = process.env.REACT_APP_API_URL;
 
 function RecipeView({ recipe }) {
   const navigate = useNavigate();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(true);
+  const [userAnswer, setUserAnswer] = useState(false);
 
   const renderIngredients = () =>
     recipe.ingredients.map((item, index) => <li key={index}>{item}</li>);
@@ -17,7 +19,7 @@ function RecipeView({ recipe }) {
       </li>
     ));
 
-  const renderLabels = () =>    
+  const renderLabels = () =>
     recipe.labels.map((label, index) => (
       <span key={index} className="label">
         {label}
@@ -28,11 +30,14 @@ function RecipeView({ recipe }) {
     recipe.images.map((image, index) => (
       <img key={index} src={`${apiUrl}${image}`} alt={`תמונה ${index + 1}`} />
     ));
-
+  useEffect(() => {
+    if (userAnswer == false) return;
+    console.log("recipe delete");
+  }, [userAnswer == true]);
   return (
     <div className="container">
       <button className="home-btn" onClick={() => navigate(`/`)}>
-        Home
+        לדף הבית
       </button>
 
       <div className="ingredients-section">
@@ -54,6 +59,33 @@ function RecipeView({ recipe }) {
 
         <div className="image-gallery">{renderImages()}</div>
       </div>
+      <button className="delete-btn" onClick={() => setShowConfirmDialog(true)}>
+        מחיקת מתכון
+      </button>
+
+      {showConfirmDialog && (
+        <div className="confirm-dialog">
+          <h3> ??האם למחוק את המתכון - {recipe.name} </h3>
+          <button
+            className="confirm-btn"
+            onClick={() => {
+              setUserAnswer(true);
+              setShowConfirmDialog(false);
+            }}
+          >
+            למחוק
+          </button>
+          <button
+            className="cencel-btn"
+            onClick={() => {
+              setUserAnswer(false);
+              setShowConfirmDialog(false);
+            }}
+          >
+            לא למחוק
+          </button>
+        </div>
+      )}
     </div>
   );
 }

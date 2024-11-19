@@ -75,7 +75,7 @@ async function createTables() {
     await db.query(createRecipesTableQuery);
     await db.query(createLabelsTableQuery);
     await db.query(createRecipesLabelsTableQuery);
-    console.log("Table 'recipes' created or already exists.");
+    console.log("Tables created or already exists.");
   } catch (error) {
     console.error("Error creating table:", error);
   }
