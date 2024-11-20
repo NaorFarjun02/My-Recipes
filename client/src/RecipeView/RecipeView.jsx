@@ -36,13 +36,13 @@ function RecipeView({ recipe }) {
       fetch(`${apiUrl}/delete-recipe/${recipe.id}`, { method: "DELETE" })
         .then((response) => response.json())
         .then((data) => console.log(data));
+      navigate(`/`);
     } catch (err) {
       console.error(err.message);
     }
   };
   useEffect(() => {
     if (userAnswer === false) return;
-    navigate(`/`)
     console.log("recipe delete");
     // send delete request to server
   }, [userAnswer]);
