@@ -4,22 +4,33 @@ import Logo from "../Logo/Logo";
 import { useNavigate } from "react-router-dom";
 const apiUrl = process.env.REACT_APP_API_URL;
 
-const RecipeBrowser = ({ recipes }) => {
+const RecipeBrowser = () => {
+  const [recipes, setRecipes] = useState([]);
   const [filters, setFilters] = useState(new Set()); // State for multiple filters using Set
-  const [filtersOptions, setFiltersOptions] = useState(new Set());//State for all the labels 
+  const [filtersOptions, setFiltersOptions] = useState(new Set()); //State for all the labels
   const [sortOption, setSortOption] = useState("default"); // State for sorting
   const [sortOrder, setSortOrder] = useState("asc"); // State for sort order
   const navigate = useNavigate();
   // Function to handle adding/removing filters
 
-  useEffect(() => {
-    fetch(`${apiUrl}/get-labels`)
+  const getData = async () => {
+    fetch(`${apiUrl}/get-labels`) //get the labels to set the filters
       .then((response) => response.json())
       .then((data) => {
         setFiltersOptions(new Set(data));
       })
       .catch((error) => console.error("Error fetching labels:", error));
-    
+
+    fetch(`${apiUrl}/get-recipes`) //get the recipe to display them
+      .then((response) => response.json())
+      .then((data) => {
+        setRecipes(data);
+      })
+      .catch((error) => console.error("Error fetching recipes:", error));
+  };
+
+  useEffect(() => {
+    getData();
   }, []);
   const toggleFilter = (filter) => {
     setFilters((prevFilters) => {
@@ -140,8 +151,3 @@ const RecipeBrowser = ({ recipes }) => {
 };
 
 export default RecipeBrowser;
-
-
-
-
-

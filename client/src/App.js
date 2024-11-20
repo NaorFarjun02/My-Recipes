@@ -12,23 +12,12 @@ import { useEffect, useState } from "react";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 function App() {
-  const [recipes, setRecipes] = useState([]);
-
-  useEffect(() => {
-    fetch(`${apiUrl}/get-recipes`)
-      .then((response) => response.json())
-      .then((data) => {
-        setRecipes(data);
-      })
-      .catch((error) => console.error("Error fetching recipes:", error));
-  }, []);
-
   return (
     <Router>
       <div className="App">
         <Routes>
           {/* עמוד ברירת מחדל - כלל המתכונים */}
-          <Route path="/" element={<RecipeBrowser recipes={recipes} />} />
+          <Route path="/" element={<RecipeBrowser />} />
 
           {/* עמוד צפייה במתכון יחיד */}
           <Route path="/recipe/:id" element={<RecipeViewWrapper />} />

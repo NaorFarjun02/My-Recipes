@@ -5,7 +5,7 @@ const apiUrl = process.env.REACT_APP_API_URL;
 
 function RecipeView({ recipe }) {
   const navigate = useNavigate();
-  const [showConfirmDialog, setShowConfirmDialog] = useState(true);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [userAnswer, setUserAnswer] = useState(false);
 
   const renderIngredients = () =>
@@ -30,16 +30,28 @@ function RecipeView({ recipe }) {
     recipe.images.map((image, index) => (
       <img key={index} src={`${apiUrl}${image}`} alt={`תמונה ${index + 1}`} />
     ));
+
+  const deleteRecipe = async () => {
+    try {
+      fetch(`${apiUrl}/delete-recipe/${recipe.id}`, { method: "DELETE" })
+        .then((response) => response.json())
+        .then((data) => console.log(data));
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
   useEffect(() => {
-    if (userAnswer == false) return;
+    if (userAnswer === false) return;
+    navigate(`/`)
     console.log("recipe delete");
-  }, [userAnswer == true]);
+    // send delete request to server
+  }, [userAnswer]);
+
   return (
     <div className="container">
       <button className="home-btn" onClick={() => navigate(`/`)}>
         לדף הבית
       </button>
-
       <div className="ingredients-section">
         <h2>רשימת מצרכים</h2>
         <ul className="ingredients-div">{renderIngredients()}</ul>
@@ -71,6 +83,7 @@ function RecipeView({ recipe }) {
             onClick={() => {
               setUserAnswer(true);
               setShowConfirmDialog(false);
+              deleteRecipe();
             }}
           >
             למחוק

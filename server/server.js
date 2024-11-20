@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import pg from "pg";
 import cors from "cors";
 import bodyParser from "body-parser";
+import { error } from "console";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -198,7 +199,7 @@ app.get("/get-recipe/:id", async (req, res) => {
         [req.params.id[1]]
       )
     ).rows[0];
-    console.log(recipe);
+    // console.log(recipe);
 
     if (!recipe) {
       return res.status(404).json({ error: "Recipe not found" });
@@ -298,6 +299,56 @@ app.get("/get-labels", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch labels." });
+  }
+});
+
+app.delete("/delete-recipe/:id", async (req, res) => {
+  try {
+    const recipeId = req.params.id;
+    console.log(`try to delete recipe: ${recipeId}`);
+
+    // check if the labels of the deleted recipe are relevent or need to be deleted
+
+    const recipeLabels = (
+      await db.query(
+        "SELECT (label_id) FROM recipe_labels WHERE recipe_id=$1",
+        [recipeId]
+      )
+    ).rows.map((row) => row.label_id); //Saves the id of the labels associated with the recipe that will now be deleted
+    console.log(recipeLabels);
+
+    // delete recipe from DB and the relevent data in recipe_label will be deleted whit it
+    const deletedRecipe = await db.query(
+      "DELETE FROM recipes WHERE id=$1 RETURNING *",
+      [recipeId]
+    );
+    if (deletedRecipe.rowCount === 0) throw Error("Recipe not found");
+    console.log(deletedRecipe.rows[0]);
+
+    //after delete the recipe search for label that are not associated to any recipe and delete them(there not relevent any more)
+
+    for (const labelId of recipeLabels) {
+      const labelCount = (
+        await db.query(
+          "SELECT COUNT(*) AS count FROM recipe_labels WHERE label_id = $1",
+          [labelId]
+        )
+      ).rows[0].count;
+
+      if (parseInt(labelCount, 10) === 0) {
+        console.log(`delete - labelID:${labelId} - count:${labelCount}`);
+        await db.query("DELETE FROM labels WHERE id = $1", [labelId]);
+      }
+    }
+    // delete the labels that are not relevent
+
+    res.json({
+      message: "Recipe deleted successfully",
+      recipe: recipeLabels,
+    });
+  } catch (err) {
+    console.log(`##### Error in delete recipe - ${err.message} #####`);
+    res.status(500).json({ error: err.message });
   }
 });
 
