@@ -1,7 +1,7 @@
 .recipe-form {
-  width: 90vw;
-  height: 85vh;
-  margin: 0 auto;
+  width: 95%;
+  height: 90%;
+  margin: 0;
   background-color: #ffffff;
   padding: 20px;
   border-radius: 15px;
@@ -9,10 +9,32 @@
   animation: fadeIn 0.5s ease;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  gap: 15px;
+  overflow: auto;
   scrollbar-width: none;
 }
+/* page buttons */
+.home-btn {
+  position: absolute;
+  font-size: 1rem;
+  width: fit-content;
+  height: 5vh;
+  top: 5px;
+  border-radius: 10px;
+  border: none;
+  background-color: #f89756;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  right: 5px;
+}
 
+.home-btn:hover {
+  background-color: #d68b3f; /* Darker shade on hover */
+  border: 1px black solid;
+}
+
+/* page titel */
 .recipe-form h2 {
   text-align: center;
   color: #ff7700;
@@ -21,71 +43,119 @@
   margin-bottom: 20px;
 }
 
-label {
-  display: block;
-  color: #555;
-  font-size: 1.1rem;
-  margin: 10px 0 5px;
-}
+/* the section of the basic info */
 
-input {
-  width: 90%;
-  max-height: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-  text-align: right;
-}
-
-
-.name-section,
-.author-section{
+.info-section-new {
   display: flex;
-  flex-direction: row-reverse;
-  gap: 10px;
-  justify-content: center;
-  width: 100%;
-  margin: 10px 0;
-}
-
-.name-section label,
-.author-section label{
-  width: 10%;
-  font-size: 1.5em;
-  text-align: center;
-}
-.name-section input,
-.author-section input{
-  width: 50%;
-}
-
-
-.description-section,
-.image-upload-section {
-  margin: 10px 0;
-}
-
-.description-section label,
-.image-upload-section label {
-  display: block;
-  color: #555;
-  font-size: 1.1rem;
-  margin: 10px 0 5px;
-}
-
-.description-section textarea {
   width: 90%;
+  height: 23%;
+  max-height: 23%;
   padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-  resize: none;
-  text-align: right;
+  margin: 0;
+  justify-content: center;
+  align-self: center;
+  gap: 10px;
 }
 
+/* name + author */
+.name-author-part {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 20%;
+  justify-content: center;
+  align-items: center;
+}
+.name-author-part input {
+  text-align: right;
+  padding: 5px 10px;
+  width: 80%;
+  height: 20%;
+  border-radius: 10px;
+  border: 2px black solid;
+}
 
+/* description */
+.description-part {
+  width: 30%;
+  height: 100%;
+  align-content: center;
+}
 
+.description-part textarea {
+  resize: none;
+  width: 90%;
+  height: 85%;
+  text-align: right;
+  padding: 7px;
+  border: 2px black solid;
+  border-radius: 10px;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
+
+/* images */
+.img-part {
+  width: 50%;
+  height: 100%;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+.img-part .images-btns {
+  display: flex;
+  flex-direction: column;
+  width: 35%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.images-btns input {
+  display: none;
+}
+
+.images-btns button,
+.images-btns label {
+  background: none;
+  text-decoration: underline;
+  font-size: 1rem;
+  border: none;
+  box-shadow: none;
+}
+
+.preview-container {
+  height: 100%;
+  width: 65%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  overflow-y: auto; /* Changed to auto for better scrolling */
+  scrollbar-width: none;
+}
+
+.image-preview {
+  width: 150px;
+  height: 150px;
+  border: none;
+  border-radius: 8px;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* the section of multi options */
+
+.renders-section-new {
+  display: flex;
+  padding: 10px;
+}
 
 .ingredients-section-new,
 .steps-section-new,
@@ -106,7 +176,6 @@ input {
   color: #ff7700;
 }
 
-
 .ingredients-item,
 .steps-item,
 .labels-item {
@@ -118,17 +187,29 @@ input {
   margin-bottom: 10px;
 }
 
+.ingredients-input,
+.steps-input,
+.labels-input {
+  width: 90%;
+  max-height: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  text-align: right;
+}
+
 .add-ingredients-btn,
 .add-steps-btn,
 .add-labels-btn,
 .remove-ingredients-field-btn,
 .remove-steps-field-btn,
 .remove-labels-field-btn {
-  font-size: 0.9rem;
+  font-size: 0.9em;
   color: #ffffff;
   background-color: #f2a43f;
   border: none;
-  padding: 10px 10px;
+  padding: 5px 10px;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0q.3s ease;
@@ -144,14 +225,16 @@ input {
 .remove-ingredients-field-btn,
 .remove-steps-field-btn,
 .remove-labels-field-btn {
-  width: 10%;
-  max-width: 70px;
+  width: 15%;
   margin: 0;
+
+  padding: 10px;
+  text-align: center;
 }
 
 .submit-btn {
   margin: 20px 0;
-  width: 100%;
+  width: 90%;
   background-color: #ed731c;
   color: #ffffff;
   font-size: 1.2rem;
@@ -159,6 +242,7 @@ input {
   border-radius: 5px;
   border: none;
   cursor: pointer;
+  align-self: center;
   transition: background-color 0.3s ease;
 }
 
@@ -173,5 +257,19 @@ input {
   }
   to {
     opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .info-section-new,
+  .renders-section-new,
+  .img-part {
+    flex-direction: column;
+  }
+
+  .preview-container {
+    display: flex;
+    /* flex-wrap: wrap; */
+    flex-direction: row;
   }
 }

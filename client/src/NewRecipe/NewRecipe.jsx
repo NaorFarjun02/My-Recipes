@@ -7,51 +7,52 @@ function NewRecipe() {
   const navigate = useNavigate();
 
   const [images, setImages] = useState([]);
+  const [imagesUrls, setImagesUrls] = useState([]);
   const [recipe, setRecipe] = useState({
-    name: "מרק ירקות עשיר",
-    author: "מירב כהן",
-    description: "מרק ירקות עשיר ומזין עם הרבה ירקות ותיבול מיוחד.",
-    labels: ["בישול", "צמחוני", "מרקים"],
-    ingredients: [
-      "4 תפוחי אדמה",
-      "2 גזרים",
-      "2 בצלים",
-      "1 קישוא",
-      "1 בטטה",
-      "4 כפות שמן זית",
-      "2 כפות מלח",
-      "1 כף פלפל שחור",
-      "1 כף כמון",
-      "3 עלי דפנה",
-      "1/2 כף כורכום",
-      "2 ליטר מים",
-      "4 שיני שום קצוצות",
-      "1/2 כף פפריקה מתוקה",
-      "כף אבקת מרק ירקות",
-    ],
-    steps: [
-      "לקל peel ולחתוך את כל הירקות לקוביות.",
-      "לחמם שמן זית בסיר גדול ולהוסיף את הבצל והשום.",
-      "לטגן עד שהבצל הופך לשקוף.",
-      "להוסיף את שאר הירקות ולערבב למשך 5 דקות.",
-      "להוסיף את התבלינים ולערבב היטב.",
-      "להוסיף את המים ולערבב.",
-      "להביא לרתיחה ולהוריד את האש לבישול איטי.",
-      "לבשל במשך 40 דקות עד שהירקות מתרככים.",
-      "להוציא את עלי הדפנה ולהוסיף מלח לפי הטעם.",
-      "להגיש את המרק חם עם מעט שמן זית מעל.",
-    ],
+    name: "",
+    author: "",
+    description: "",
+    labels: [""],
+    ingredients: [""],
+    steps: [""],
   }); //a json that contain the data the user enter
 
   // {
-  //   name: "",
-  //   author: "",
-  //   description: "",
-  //   ingredients: [""],
-  //   steps: [""],
-  //   labels: [""],
-  //   images: [],
+  //   name: "מרק ירקות עשיר",
+  //   author: "מירב כהן",
+  //   description: "מרק ירקות עשיר ומזין עם הרבה ירקות ותיבול מיוחד.",
+  //   labels: ["בישול", "צמחוני", "מרקים"],
+  //   ingredients: [
+  //     "4 תפוחי אדמה",
+  //     "2 גזרים",
+  //     "2 בצלים",
+  //     "1 קישוא",
+  //     "1 בטטה",
+  //     "4 כפות שמן זית",
+  //     "2 כפות מלח",
+  //     "1 כף פלפל שחור",
+  //     "1 כף כמון",
+  //     "3 עלי דפנה",
+  //     "1/2 כף כורכום",
+  //     "2 ליטר מים",
+  //     "4 שיני שום קצוצות",
+  //     "1/2 כף פפריקה מתוקה",
+  //     "כף אבקת מרק ירקות",
+  //   ],
+  //   steps: [
+  //     "לקל peel ולחתוך את כל הירקות לקוביות.",
+  //     "לחמם שמן זית בסיר גדול ולהוסיף את הבצל והשום.",
+  //     "לטגן עד שהבצל הופך לשקוף.",
+  //     "להוסיף את שאר הירקות ולערבב למשך 5 דקות.",
+  //     "להוסיף את התבלינים ולערבב היטב.",
+  //     "להוסיף את המים ולערבב.",
+  //     "להביא לרתיחה ולהוריד את האש לבישול איטי.",
+  //     "לבשל במשך 40 דקות עד שהירקות מתרככים.",
+  //     "להוציא את עלי הדפנה ולהוסיף מלח לפי הטעם.",
+  //     "להגיש את המרק חם עם מעט שמן זית מעל.",
+  //   ],
   // }
+
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setRecipe((prevRecipe) => ({ ...prevRecipe, [name]: value }));
@@ -81,15 +82,17 @@ function NewRecipe() {
   }, []);
 
   const renderArrayFields = useMemo(
-    () => (field, title) =>
+    () => (field, title, holder) =>
       (
         <div className={`${field}-section-new`}>
           <h3>:{title}</h3>
           {recipe[field].map((item, index) => (
             <div key={index} className={`${field}-item`}>
               <input
+                className={`${field}-input`}
                 type="text"
                 value={item}
+                placeholder={holder}
                 onChange={(e) => handleArrayChange(e, index, field)}
                 required
               />
@@ -115,7 +118,10 @@ function NewRecipe() {
   );
 
   const handleImageChange = (e) => {
-    setImages([...e.target.files]); // Store all selected files
+    const files = Array.from(e.target.files);
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setImages(files); // Store all selected files
+    setImagesUrls(urls);
   };
   const addNewrecipe = async (recipe) => {
     for (let [key, value] of recipe.entries()) {
@@ -156,52 +162,78 @@ function NewRecipe() {
     await addNewrecipe(recipeFormData);
   };
 
+  const clearImages = async () => {
+    setImagesUrls([]);
+  };
+
   return (
     <form className="recipe-form" onSubmit={handleSubmit}>
+      <button className="home-btn" onClick={() => navigate(`/`)}>
+        לדף הבית
+      </button>
       <h2>הוספת מתכון חדש</h2>
-      <div className="name-section">
-        <label>:שם המתכון</label>
-        <input
-          type="text"
-          name="name"
-          value={recipe.name}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="author-section">
-        <label>:מחבר המתכון</label>
-        <input
-          type="text"
-          name="author"
-          value={recipe.author}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="description-section">
-        <label>:תיאור</label>
-        <textarea
-          name="description"
-          value={recipe.description}
-          onChange={handleChange}
-          rows="4"
-          required
-        />
-      </div>
-      <div className="image-upload-section">
-        <label>:העלה תמונות</label>
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-      </div>
-      {renderArrayFields("ingredients", "מצרכים")}
-      {renderArrayFields("labels", "תגיות")}
-      {renderArrayFields("steps", "שלבי הכנה")}
+      <div className="info-section-new">
+        <div className="img-part">
+          <div className="images-btns">
+            <button className="clear-images" onClick={clearImages}>
+              לחץ למחיקת התמונות הנבחרות
+            </button>
 
+            <label htmlFor="hhh">לחץ על מנת להעלות קבצים </label>
+            <input
+              id="hhh"
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+          </div>
+
+          <div className="preview-container">
+            {imagesUrls.map((image, index) => (
+              <div className="image-preview" key={index}>
+                <img src={image} alt={`preview ${index}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="description-part">
+          {" "}
+          <textarea
+            name="description"
+            placeholder="תיאור המתכון"
+            value={recipe.description}
+            onChange={handleChange}
+            rows="4"
+            required
+          />
+        </div>
+
+        <div className="name-author-part">
+          <input
+            type="text"
+            name="name"
+            placeholder="שם המתכון"
+            value={recipe.name}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="author"
+            placeholder="מחבר המתכון"
+            value={recipe.author}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="renders-section-new">
+        {renderArrayFields("ingredients", "מצרכים", " מצרך שנדרש למתכון")}
+        {renderArrayFields("labels", "תגיות", "תג לסינון המתכון")}
+        {renderArrayFields("steps", "שלבי הכנה", "שלב בהכנת המתכון")}
+      </div>
       <button type="submit" className="submit-btn">
         שמור מתכון
       </button>

@@ -23,7 +23,21 @@ function App() {
           <Route path="/recipe/:id" element={<RecipeViewWrapper />} />
 
           {/* עמוד הוספת מתכון */}
-          <Route path="/new-recipe" element={<NewRecipe />} />
+          <Route
+            path="/new-recipe"
+            element={
+              <NewRecipe
+              // recipe={{
+              //   name: "",
+              //   author: "",
+              //   description: "",
+              //   labels: [""],
+              //   ingredients: [""],
+              //   steps: [""],
+              // }}
+              />
+            }
+          />
         </Routes>
       </div>
     </Router>
