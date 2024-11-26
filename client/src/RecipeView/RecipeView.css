@@ -8,16 +8,27 @@ html {
   font-family: "Arial", sans-serif;
   background-color: #f0f2f5;
   overflow: hidden;
+  text-align: right;
 }
 
 /* page buttons */
-.home-btn,
-.delete-btn {
+.buttons-container {
   position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-content: space-between;
+  align-self: center;
+  top: 5px;
+  width: 95%;
+  height: 5vh;
+}
+
+.home-btn-view,
+.delete-btn-view,
+.edit-btn-view {
   font-size: 1rem;
   width: fit-content;
-  height: 5vh;
-  top: 5px;
+  height: 100%;
   border-radius: 10px;
   border: none;
   background-color: #f89756;
@@ -25,15 +36,10 @@ html {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-.home-btn {
-  right: 5px;
-}
-.delete-btn {
-  left: 5px;
-}
 
-.home-btn:hover,
-.delete-btn:hover {
+.home-btn-view:hover,
+.delete-btn-view:hover,
+.edit-btn-view:hover {
   background-color: #d68b3f; /* Darker shade on hover */
 }
 
@@ -81,8 +87,8 @@ html {
 .container {
   display: flex;
   flex-direction: row;
-  height: 85vh;
-  width: 95vw;
+  height: 85%;
+  width: 95%;
   max-width: 1500px; /* Optional: set a max-width for larger screens */
   background-color: #ffffff;
   border-radius: 15px;

@@ -138,7 +138,7 @@ const RecipeBrowser = () => {
               </div>
               <button
                 className="view-recipe"
-                onClick={() => navigate(`/recipe/:${recipe.id}`)}
+                onClick={() => navigate(`/recipe/${recipe.id}`)}
               >
                 צפיה במתכון
               </button>

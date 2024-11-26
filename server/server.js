@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import pg from "pg";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { error } from "console";
+import { error, log } from "console";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -43,6 +43,27 @@ app.use(
 app.use("/images", express.static(path.join(__dirname, "images"))); // הגדרת express.static לשירות התמונות מתוך תיקיית images
 
 const upload = multer({ dest: "/upload-temp" }); //folder to save the images befor move to new folder base on the name of the recipe+id
+
+const deleteImages = (dirname) => {
+  if (fs.existsSync(recipeDir)) {
+    fs.rmSync(recipeDir, { recursive: true, force: true });
+    console.log(`Deleted recipes images from: ###${recipeDir}###`);
+    return 1;
+  }
+  return 0;
+};
+
+const saveImages = (recipeDir, images) => {
+  fs.mkdirSync(recipeDir, { recursive: true });
+
+  images.forEach((image, index) => {
+    const ext = path.extname(image.originalname);
+    const newFileName = `${recipeName}-${index + 1}${ext}`;
+    const destPath = path.join(recipeDir, newFileName);
+
+    fs.renameSync(image.path, destPath);
+  });
+};
 
 //create the DB table if not exsist
 async function createTables() {
@@ -196,10 +217,9 @@ app.get("/get-recipe/:id", async (req, res) => {
             r.id = $1
         GROUP BY 
             r.id;`,
-        [req.params.id[1]]
+        [req.params.id]
       )
     ).rows[0];
-    // console.log(recipe);
 
     if (!recipe) {
       return res.status(404).json({ error: "Recipe not found" });
@@ -227,6 +247,20 @@ app.get("/get-recipe/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch recipes." });
+  }
+});
+
+app.get("/get-labels", async (req, res) => {
+  try {
+    const labelsJson = await db.query("SELECT name FROM labels");
+    const labels = labelsJson.rows.map((label) => {
+      return label.name;
+    });
+
+    res.json(labels);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch labels." });
   }
 });
 
@@ -270,15 +304,7 @@ app.post("/new-recipe", upload.array("images"), async (req, res) => {
       "images",
       `${recipeName}-${recipeId}`
     );
-    fs.mkdirSync(recipeDir, { recursive: true });
-
-    images.forEach((image, index) => {
-      const ext = path.extname(image.originalname);
-      const newFileName = `${recipeName}-${index + 1}${ext}`;
-      const destPath = path.join(recipeDir, newFileName);
-
-      fs.renameSync(image.path, destPath);
-    });
+    saveImages(recipeDir, images); //save the images in folder for the current recipe
 
     // Respond with the newly created recipe
     res.status(201).json({ message: "Recipe images save successfully!" });
@@ -288,23 +314,20 @@ app.post("/new-recipe", upload.array("images"), async (req, res) => {
   }
 });
 
-app.get("/get-labels", async (req, res) => {
-  try {
-    const labelsJson = await db.query("SELECT name FROM labels");
-    const labels = labelsJson.rows.map((label) => {
-      return label.name;
-    });
-
-    res.json(labels);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to fetch labels." });
-  }
+app.put("/update-recipe/:id", async (req, res) => {
+  console.log("start update");
+  
+  console.log(req.body);
 });
 
 app.delete("/delete-recipe/:id", async (req, res) => {
   try {
     const recipeId = req.params.id;
+    const recipeName = (
+      await db.query("SELECT name FROM recipes WHERE id=$1", [recipeId])
+    ).rows[0].name;
+    console.log(recipeName);
+
     console.log(`try to delete recipe: ${recipeId}`);
 
     // check if the labels of the deleted recipe are relevent or need to be deleted
@@ -323,7 +346,7 @@ app.delete("/delete-recipe/:id", async (req, res) => {
       [recipeId]
     );
     if (deletedRecipe.rowCount === 0) throw Error("Recipe not found");
-    console.log(deletedRecipe.rows[0]);
+    console.log(`Deleted recipe ---${recipeName}--- from DB`);
 
     //after delete the recipe search for label that are not associated to any recipe and delete them(there not relevent any more)
 
@@ -341,6 +364,15 @@ app.delete("/delete-recipe/:id", async (req, res) => {
       }
     }
     // delete the labels that are not relevent
+
+    // delete the images
+    const recipeDir = path.join(
+      __dirname,
+      "images",
+      `${recipeName}-${recipeId}`
+    );
+    if (deleteImages(recipeDir) === 0)
+      throw Error("error delete recipe dir - not exsist ");
 
     res.json({
       message: "Recipe deleted successfully",

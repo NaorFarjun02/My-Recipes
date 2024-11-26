@@ -1,66 +1,23 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import "./NewRecipe.css";
+import "./RecipeCreatorEditor.css";
 
-function NewRecipe() {
+function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
   const navigate = useNavigate();
 
   const [images, setImages] = useState([]);
-  const [imagesUrls, setImagesUrls] = useState([]);
-  const [recipe, setRecipe] = useState({
-    name: "",
-    author: "",
-    description: "",
-    labels: [""],
-    ingredients: [""],
-    steps: [""],
-  }); //a json that contain the data the user enter
-
-  // {
-  //   name: "מרק ירקות עשיר",
-  //   author: "מירב כהן",
-  //   description: "מרק ירקות עשיר ומזין עם הרבה ירקות ותיבול מיוחד.",
-  //   labels: ["בישול", "צמחוני", "מרקים"],
-  //   ingredients: [
-  //     "4 תפוחי אדמה",
-  //     "2 גזרים",
-  //     "2 בצלים",
-  //     "1 קישוא",
-  //     "1 בטטה",
-  //     "4 כפות שמן זית",
-  //     "2 כפות מלח",
-  //     "1 כף פלפל שחור",
-  //     "1 כף כמון",
-  //     "3 עלי דפנה",
-  //     "1/2 כף כורכום",
-  //     "2 ליטר מים",
-  //     "4 שיני שום קצוצות",
-  //     "1/2 כף פפריקה מתוקה",
-  //     "כף אבקת מרק ירקות",
-  //   ],
-  //   steps: [
-  //     "לקל peel ולחתוך את כל הירקות לקוביות.",
-  //     "לחמם שמן זית בסיר גדול ולהוסיף את הבצל והשום.",
-  //     "לטגן עד שהבצל הופך לשקוף.",
-  //     "להוסיף את שאר הירקות ולערבב למשך 5 דקות.",
-  //     "להוסיף את התבלינים ולערבב היטב.",
-  //     "להוסיף את המים ולערבב.",
-  //     "להביא לרתיחה ולהוריד את האש לבישול איטי.",
-  //     "לבשל במשך 40 דקות עד שהירקות מתרככים.",
-  //     "להוציא את עלי הדפנה ולהוסיף מלח לפי הטעם.",
-  //     "להגיש את המרק חם עם מעט שמן זית מעל.",
-  //   ],
-  // }
+  const [imagesUrls, setImagesUrls] = useState(recipeImages);
+  const [recipeData, setRecipeData] = useState(recipe); //a json that contain the data the user enter
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setRecipe((prevRecipe) => ({ ...prevRecipe, [name]: value }));
+    setRecipeData((prevRecipe) => ({ ...prevRecipe, [name]: value }));
   }, []);
 
   const handleArrayChange = useCallback((e, index, field) => {
     const { value } = e.target;
-    setRecipe((prevRecipe) => {
+    setRecipeData((prevRecipe) => {
       const updatedField = [...prevRecipe[field]];
       updatedField[index] = value;
       return { ...prevRecipe, [field]: updatedField };
@@ -68,14 +25,14 @@ function NewRecipe() {
   }, []);
 
   const addField = useCallback((field) => {
-    setRecipe((prevRecipe) => ({
+    setRecipeData((prevRecipe) => ({
       ...prevRecipe,
       [field]: [...prevRecipe[field], ""],
     }));
   }, []);
 
   const removeField = useCallback((index, field) => {
-    setRecipe((prevRecipe) => {
+    setRecipeData((prevRecipe) => {
       const updatedField = prevRecipe[field].filter((_, i) => i !== index);
       return { ...prevRecipe, [field]: updatedField };
     });
@@ -86,7 +43,7 @@ function NewRecipe() {
       (
         <div className={`${field}-section-new`}>
           <h3>:{title}</h3>
-          {recipe[field].map((item, index) => (
+          {recipeData[field].map((item, index) => (
             <div key={index} className={`${field}-item`}>
               <input
                 className={`${field}-input`}
@@ -114,7 +71,7 @@ function NewRecipe() {
           </button>
         </div>
       ),
-    [recipe, handleArrayChange, removeField, addField]
+    [recipeData, handleArrayChange, removeField, addField]
   );
 
   const handleImageChange = (e) => {
@@ -123,10 +80,10 @@ function NewRecipe() {
     setImages(files); // Store all selected files
     setImagesUrls(urls);
   };
-  const addNewrecipe = async (recipe) => {
-    for (let [key, value] of recipe.entries()) {
-      console.log(key, value);
-    }
+  const clearImages = async () => {
+    setImagesUrls([]);
+  };
+  const addNewRecipe = async (recipe) => {
     try {
       const response = await fetch("http://localhost:3001/new-recipe", {
         method: "POST",
@@ -143,35 +100,65 @@ function NewRecipe() {
       console.error("Error uploading recipe:", error);
     }
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const updateRecipe = async (recipe) => {
+    // for (let [key, value] of recipe.entries()) {
+    //   console.log(key, value);
+    // }
+    try {
+      const response = await fetch(
+        `http://localhost:3001/update-recipe/${recipe.id}`,
+        {
+          method: "PUT",
+          body: recipe,
+        }
+      );
 
+      if (response.ok) {
+        alert("Recipe updated successfully!");
+      } else {
+        alert("Failed to updated recipe.");
+        throw Error(response);
+      }
+      navigate(`/`);
+    } catch (error) {
+      console.error("Error updateing recipe:", error);
+    }
+  };
+  const handleSubmit = async (e) => {
     const recipeFormData = new FormData(); // the data that send to server
-    recipeFormData.append("name", recipe.name);
-    recipeFormData.append("author", recipe.author);
-    recipeFormData.append("description", recipe.description);
-    recipeFormData.append("ingredients", JSON.stringify(recipe.ingredients));
-    recipeFormData.append("steps", JSON.stringify(recipe.steps));
-    recipeFormData.append("labels", JSON.stringify(recipe.labels));
+    recipeFormData.append("name", recipeData.name);
+    recipeFormData.append("author", recipeData.author);
+    recipeFormData.append("description", recipeData.description);
+    recipeFormData.append(
+      "ingredients",
+      JSON.stringify(recipeData.ingredients)
+    );
+    recipeFormData.append("steps", JSON.stringify(recipeData.steps));
+    recipeFormData.append("labels", JSON.stringify(recipeData.labels));
 
     // Append each image to the form data
     images.forEach((image) => {
       recipeFormData.append("images", image);
     });
 
-    await addNewrecipe(recipeFormData);
-  };
-
-  const clearImages = async () => {
-    setImagesUrls([]);
+    if (editStatus) {
+      recipeFormData.append("id", recipeData.id); //add the id of the recipe to the data
+      await updateRecipe(recipeFormData); //send a put request to server
+      return;
+    }
+    await addNewRecipe(recipeFormData); //send a post request to server
   };
 
   return (
-    <form className="recipe-form" onSubmit={handleSubmit}>
-      <button className="home-btn" onClick={() => navigate(`/`)}>
+    <div className="recipe-form">
+      <button className="home-btn-create" onClick={() => navigate(`/`)}>
         לדף הבית
       </button>
-      <h2>הוספת מתכון חדש</h2>
+      {editStatus ? (
+        <h2>עדכון מתכון {recipe.name}</h2>
+      ) : (
+        <h2>הוספת מתכון חדש</h2>
+      )}
       <div className="info-section-new">
         <div className="img-part">
           <div className="images-btns">
@@ -202,7 +189,7 @@ function NewRecipe() {
           <textarea
             name="description"
             placeholder="תיאור המתכון"
-            value={recipe.description}
+            value={recipeData.description}
             onChange={handleChange}
             rows="4"
             required
@@ -214,7 +201,7 @@ function NewRecipe() {
             type="text"
             name="name"
             placeholder="שם המתכון"
-            value={recipe.name}
+            value={recipeData.name}
             onChange={handleChange}
             required
           />
@@ -222,7 +209,7 @@ function NewRecipe() {
             type="text"
             name="author"
             placeholder="מחבר המתכון"
-            value={recipe.author}
+            value={recipeData.author}
             onChange={handleChange}
             required
           />
@@ -234,11 +221,11 @@ function NewRecipe() {
         {renderArrayFields("labels", "תגיות", "תג לסינון המתכון")}
         {renderArrayFields("steps", "שלבי הכנה", "שלב בהכנת המתכון")}
       </div>
-      <button type="submit" className="submit-btn">
-        שמור מתכון
+      <button onClick={() => handleSubmit()} className="submit-btn">
+        {editStatus ? "שמור שינויים" : "שמור מתכון"}
       </button>
-    </form>
+    </div>
   );
 }
 
-export default NewRecipe;
+export default RecipeCreatorEditor;

@@ -49,9 +49,26 @@ function RecipeView({ recipe }) {
 
   return (
     <div className="container">
-      <button className="home-btn" onClick={() => navigate(`/`)}>
-        לדף הבית
-      </button>
+      <div className="buttons-container">
+        <button
+          className="delete-btn-view"
+          onClick={() => setShowConfirmDialog(true)}
+        >
+          מחיקת מתכון
+        </button>
+
+        <button
+          className="edit-btn-view"
+          onClick={() => navigate(`/edit-recipe/${recipe.id}`)}
+        >
+          {" "}
+          עריכת מתכון
+        </button>
+        <button className="home-btn-view" onClick={() => navigate(`/`)}>
+          לדף הבית
+        </button>
+      </div>
+
       <div className="ingredients-section">
         <h2>רשימת מצרכים</h2>
         <ul className="ingredients-div">{renderIngredients()}</ul>
@@ -71,9 +88,6 @@ function RecipeView({ recipe }) {
 
         <div className="image-gallery">{renderImages()}</div>
       </div>
-      <button className="delete-btn" onClick={() => setShowConfirmDialog(true)}>
-        מחיקת מתכון
-      </button>
 
       {showConfirmDialog && (
         <div className="confirm-dialog">

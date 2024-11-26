@@ -1,6 +1,6 @@
 .recipe-form {
   width: 95%;
-  height: 90%;
+  height: 85%;
   margin: 0;
   background-color: #ffffff;
   padding: 20px;
@@ -14,12 +14,13 @@
   scrollbar-width: none;
 }
 /* page buttons */
-.home-btn {
+.home-btn-create {
   position: absolute;
   font-size: 1rem;
   width: fit-content;
   height: 5vh;
   top: 5px;
+  right: 5px;
   border-radius: 10px;
   border: none;
   background-color: #f89756;
@@ -29,7 +30,7 @@
   right: 5px;
 }
 
-.home-btn:hover {
+.home-btn-create:hover {
   background-color: #d68b3f; /* Darker shade on hover */
   border: 1px black solid;
 }
