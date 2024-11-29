@@ -44,16 +44,16 @@ app.use("/images", express.static(path.join(__dirname, "images"))); // הגדר�
 
 const upload = multer({ dest: "/upload-temp" }); //folder to save the images befor move to new folder base on the name of the recipe+id
 
-const deleteImages = (dirname) => {
+const deleteImages = (recipeDir) => {
   if (fs.existsSync(recipeDir)) {
     fs.rmSync(recipeDir, { recursive: true, force: true });
-    console.log(`Deleted recipes images from: ###${recipeDir}###`);
+    console.log(`Deleted recipe images from: ---${recipeDir}---`);
     return 1;
   }
   return 0;
 };
 
-const saveImages = (recipeDir, images) => {
+const saveImages = (recipeDir, images, recipeName) => {
   fs.mkdirSync(recipeDir, { recursive: true });
 
   images.forEach((image, index) => {
@@ -62,6 +62,7 @@ const saveImages = (recipeDir, images) => {
     const destPath = path.join(recipeDir, newFileName);
 
     fs.renameSync(image.path, destPath);
+    console.log(`Save recipe images from: ---${recipeDir}---`);
   });
 };
 
@@ -279,15 +280,15 @@ app.post("/new-recipe", upload.array("images"), async (req, res) => {
       const labelResult = await db.query(
         "INSERT INTO labels (name) VALUES ($1) ON CONFLICT (name) DO NOTHING RETURNING id",
         [label]
-      );
+      ); // create the label in the lables table
       if (labelResult.rows.length > 0) {
-        labelIds.push(labelResult.rows[0].id);
+        labelIds.push(labelResult.rows[0].id); //if the label insert to db add save is ID for use in the recipe_labels table
       } else {
         const existingLabelResult = await db.query(
           "SELECT id FROM labels WHERE name = $1",
           [label]
         );
-        labelIds.push(existingLabelResult.rows[0].id);
+        labelIds.push(existingLabelResult.rows[0].id); //if the label is exsist add save is ID for use in the recipe_labels table
       }
     }
 
@@ -296,7 +297,7 @@ app.post("/new-recipe", upload.array("images"), async (req, res) => {
       await db.query(
         "INSERT INTO recipe_labels (recipe_id, label_id) VALUES ($1, $2)",
         [recipeId, labelId]
-      );
+      ); //create a link between a recipe and the lable in the recipe_lables table
     }
 
     const recipeDir = path.join(
@@ -304,7 +305,7 @@ app.post("/new-recipe", upload.array("images"), async (req, res) => {
       "images",
       `${recipeName}-${recipeId}`
     );
-    saveImages(recipeDir, images); //save the images in folder for the current recipe
+    saveImages(recipeDir, images, recipeName); //save the images in folder for the current recipe
 
     // Respond with the newly created recipe
     res.status(201).json({ message: "Recipe images save successfully!" });
@@ -314,10 +315,119 @@ app.post("/new-recipe", upload.array("images"), async (req, res) => {
   }
 });
 
-app.put("/update-recipe/:id", async (req, res) => {
-  console.log("start update");
-  
-  console.log(req.body);
+app.put("/update-recipe/:id", upload.array("images"), async (req, res) => {
+  const recipeId = req.params.id;
+  const updatedRecipe = req.body; // the new data of the recipe
+  const images = req.files; // new images - if uploaded
+  try {
+    // check if the recipe is exsist
+    const recipe = (
+      await db.query("SELECT * FROM recipes WHERE id = $1", [recipeId])
+    ).rows[0];
+
+    if (!recipe) {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
+
+    // update the recipe in the recipes table
+    const updateQuery = `
+      UPDATE recipes
+      SET name = $1, author = $2, description = $3, ingredients = $4, steps = $5
+      WHERE id = $6
+    `;
+    const updateValues = [
+      updatedRecipe.name,
+      updatedRecipe.author,
+      updatedRecipe.description,
+      JSON.parse(updatedRecipe.ingredients),
+      JSON.parse(updatedRecipe.steps),
+      recipeId,
+    ];
+
+    await db.query(updateQuery, updateValues); //update the recipe data
+    console.log("update recipe in db");
+
+    // ------------------------------------------------------------------------------------//
+    const currentRecipeLables = (
+      await db.query(`SELECT label_id FROM recipe_labels WHERE recipe_id =$1`, [
+        recipeId,
+      ])
+    ).rows.map((row) => row.label_id); //current recipe labels ids
+
+    //update the labels of the recipe
+    const updateLabels = JSON.parse(req.body.labels);
+    const updateRecipeLables = [];
+    for (const label of updateLabels) {
+      const labelResult = await db.query(
+        "INSERT INTO labels (name) VALUES ($1) ON CONFLICT (name) DO NOTHING RETURNING id",
+        [label]
+      ); // create the label in the lables table
+      if (labelResult.rows.length > 0) {
+        updateRecipeLables.push(labelResult.rows[0].id); //if the label insert to db add save is ID for use in the recipe_labels table
+      } else {
+        const existingLabelResult = await db.query(
+          "SELECT id FROM labels WHERE name = $1",
+          [label]
+        );
+        updateRecipeLables.push(existingLabelResult.rows[0].id); //if the label is exsist add save is ID for use in the recipe_labels table
+      }
+    }
+
+    // Link labels to the recipe
+    for (const labelId of updateRecipeLables) {
+      await db.query(
+        "INSERT INTO recipe_labels (recipe_id, label_id) VALUES ($1, $2) ON CONFLICT (recipe_id, label_id) DO NOTHING",
+        [recipeId, labelId]
+      ); //create a link between a recipe and the lable in the recipe_lables table
+    }
+
+    const misingLables = currentRecipeLables.filter(
+      (item) => !updateRecipeLables.includes(item)
+    ); //get the lables that not come with the update
+    console.log(currentRecipeLables, updateRecipeLables, misingLables);
+
+    // check if the labels of the deleted recipe are relevent or need to be deleted
+
+    for (const labelId of misingLables) {
+      const labelCount = (
+        await db.query(
+          "SELECT COUNT(*) AS count FROM recipe_labels WHERE label_id = $1",
+          [labelId]
+        )
+      ).rows[0].count;
+
+      if (parseInt(labelCount, 10) === 1) {
+        console.log(`delete - labelID:${labelId} - count:${labelCount}`);
+        await db.query("DELETE FROM labels WHERE id = $1", [labelId]);
+      }
+      await db.query(
+        "DELETE FROM recipe_labels WHERE recipe_id = $1 AND label_id = $2  ",
+        [recipeId, labelId]
+      );
+    }
+    // delete the labels that are not relevent
+    console.log("update labels");
+    // ------------------------------------------------------------------------------------//
+
+    // אם הועלו תמונות חדשות, עדכן את תיקיית התמונות
+    if (images && images.length > 0) {
+      console.log("start save images");
+
+      const recipeName = updatedRecipe.name || recipe.name;
+      const recipeDir = path.join(
+        __dirname,
+        "images",
+        `${recipeName}-${recipeId}`
+      );
+      deleteImages(recipeDir);
+      saveImages(recipeDir, images, recipeName);
+    }
+
+    res.json({ message: "Recipe updated successfully!" });
+  } catch (error) {
+    console.error("Error updating recipe:", error);
+    res.status(500).json({ error: "Failed to update recipe." });
+  }
 });
 
 app.delete("/delete-recipe/:id", async (req, res) => {
@@ -387,3 +497,8 @@ app.delete("/delete-recipe/:id", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+// create recipe in recipes table
+// create labels in labels recipes
+// create relevent rows in recipe_labels tables
+// save images

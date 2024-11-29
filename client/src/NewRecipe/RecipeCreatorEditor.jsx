@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import "./RecipeCreatorEditor.css";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
   const navigate = useNavigate();
@@ -90,38 +91,31 @@ function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
         body: recipe,
       });
 
-      if (response.ok) {
-        alert("Recipe uploaded successfully!");
-      } else {
+      if (!response.ok) {
         alert("Failed to upload recipe.");
+        throw Error(response);
       }
+      alert("Recipe uploaded successfully!");
       navigate(`/`);
     } catch (error) {
       console.error("Error uploading recipe:", error);
     }
   };
-  const updateRecipe = async (recipe) => {
-    // for (let [key, value] of recipe.entries()) {
-    //   console.log(key, value);
-    // }
+  const updateRecipe = async (recipe, id) => {
     try {
-      const response = await fetch(
-        `http://localhost:3001/update-recipe/${recipe.id}`,
-        {
-          method: "PUT",
-          body: recipe,
-        }
-      );
-
-      if (response.ok) {
-        alert("Recipe updated successfully!");
-      } else {
+      const response = await fetch(`${apiUrl}/update-recipe/${id}`, {
+        method: "PUT",
+        body: recipe,
+      });
+      if (!response.ok) {
         alert("Failed to updated recipe.");
         throw Error(response);
       }
+      alert("Recipe updated successfully!");
       navigate(`/`);
     } catch (error) {
       console.error("Error updateing recipe:", error);
+      navigate(`/`);
     }
   };
   const handleSubmit = async (e) => {
@@ -143,7 +137,7 @@ function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
 
     if (editStatus) {
       recipeFormData.append("id", recipeData.id); //add the id of the recipe to the data
-      await updateRecipe(recipeFormData); //send a put request to server
+      await updateRecipe(recipeFormData, recipeData.id); //send a put request to server
       return;
     }
     await addNewRecipe(recipeFormData); //send a post request to server

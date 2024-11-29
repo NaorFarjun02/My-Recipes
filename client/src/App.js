@@ -85,7 +85,6 @@ function RecipeViewWrapper() {
       .then((response) => response.json())
       .then((data) => {
         setRecipe(data);
-        console.log(data);
       })
       .catch((error) => console.error("Error fetching recipe:", error));
   }, [id]);
@@ -105,7 +104,6 @@ function RecipeEditWrapper() {
       .then((response) => response.json())
       .then((data) => {
         setRecipe(data);
-        console.log(data);
       })
       .catch((error) => console.error("Error fetching recipe:", error));
   }, [id]);
