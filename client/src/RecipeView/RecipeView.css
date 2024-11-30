@@ -7,7 +7,6 @@ html {
   padding: 0;
   font-family: "Arial", sans-serif;
   background-color: #f0f2f5;
-  overflow: hidden;
   text-align: right;
 }
 
@@ -22,7 +21,7 @@ html {
   width: 95%;
   height: 5vh;
 }
-
+.print-btn,
 .home-btn-view,
 .delete-btn-view,
 .edit-btn-view {
@@ -36,8 +35,8 @@ html {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
-.home-btn-view:hover,
+.print-btn,
+:hover .home-btn-view:hover,
 .delete-btn-view:hover,
 .edit-btn-view:hover {
   background-color: #d68b3f; /* Darker shade on hover */
@@ -303,5 +302,8 @@ html {
   .labels .label {
     font-size: 0.8rem;
     padding: 5px 10px;
+    
   }
 }
+
+

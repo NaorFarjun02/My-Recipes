@@ -30,7 +30,63 @@ function RecipeView({ recipe }) {
     recipe.images.map((image, index) => (
       <img key={index} src={`${apiUrl}${image}`} alt={`תמונה ${index + 1}`} />
     ));
+  const handlePrint = () => {
+    // יצירת חלון חדש
+    const printWindow = window.open("", "_blank");
+    const ingredientsHTML = document.querySelector(
+      ".ingredients-section"
+    ).outerHTML;
+    const stepsHTML = document.querySelector(".steps-section").outerHTML;
 
+    // שליפת כל הסטיילים מהדף הנוכחי
+    const styles = [...document.styleSheets]
+      .map((styleSheet) => {
+        try {
+          return [...styleSheet.cssRules].map((rule) => rule.cssText).join("");
+        } catch (e) {
+          return ""; // אם יש שגיאה בגישה לסטיילים, מחזירים מחרוזת ריקה
+        }
+      })
+      .join("");
+
+    // יצירת תוכן מותאם להדפסה (כולל HTML וסטיילים)
+    const contentToPrint = `
+      <html>
+        <head>
+          <title>הדפסת מתכון</title>
+          <style>
+            ${styles} /* כאן אנחנו מכניסים את כל הסטיילים שמוגדרים במסמך הנוכחי */
+            html{
+              overflow: scroll;
+            }
+            body{
+              height: 100%;
+              width: 100%;
+              display:flex;
+              flex-direction: column;
+            }
+            .ingredients-section, .steps-section {
+              page-break-before: always; /* התחלה של כל SECTION בעמוד חדש */
+            }
+            .steps-section {
+              page-break-before: always; /* אם רוצים להוסיף כאן גם עמוד חדש לפני שלבי ההכנה */
+            }
+          </style>
+        </head>
+        <body>
+          ${ingredientsHTML}
+          ${stepsHTML}
+        </body>
+      </html>
+    `;
+
+    // הוספת התוכן החדש לחלון
+    printWindow.document.write(contentToPrint);
+
+    // הדפסת העמוד
+    printWindow.document.close();
+    printWindow.print();
+  };
   const deleteRecipe = async () => {
     try {
       fetch(`${apiUrl}/delete-recipe/${recipe.id}`, { method: "DELETE" })
@@ -55,6 +111,9 @@ function RecipeView({ recipe }) {
           onClick={() => setShowConfirmDialog(true)}
         >
           מחיקת מתכון
+        </button>
+        <button className="print-btn" onClick={handlePrint}>
+          הדפסת מתכון
         </button>
 
         <button
