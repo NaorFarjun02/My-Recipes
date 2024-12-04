@@ -1,6 +1,6 @@
 .recipe-form {
   width: 95%;
-  height: 85%;
+  height: 90%;
   margin: 0;
   background-color: #ffffff;
   padding: 20px;
@@ -51,7 +51,7 @@
   width: 90%;
   height: 23%;
   max-height: 23%;
-  padding: 10px;
+  padding: 5px;
   margin: 0;
   justify-content: center;
   align-self: center;
@@ -155,7 +155,7 @@
 
 .renders-section-new {
   display: flex;
-  padding: 10px;
+  padding: 5px;
 }
 
 .ingredients-section-new,
