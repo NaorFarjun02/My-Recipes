@@ -7,6 +7,7 @@ const apiUrl = process.env.REACT_APP_API_URL;
 function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
   const navigate = useNavigate();
 
+
   const [images, setImages] = useState([]);
   const [imagesUrls, setImagesUrls] = useState(recipeImages);
   const [recipeData, setRecipeData] = useState(recipe); //a json that contain the data the user enter
@@ -142,82 +143,269 @@ function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
     }
     await addNewRecipe(recipeFormData); //send a post request to server
   };
-
+  
   return (
-    <div className="recipe-form">
-      <button className="home-btn-create" onClick={() => navigate(`/`)}>
-        לדף הבית
-      </button>
-      {editStatus ? (
-        <h2>עדכון מתכון {recipe.name}</h2>
-      ) : (
-        <h2>הוספת מתכון חדש</h2>
-      )}
-      <div className="info-section-new">
-        <div className="img-part">
-          <div className="images-btns">
-            <button className="clear-images" onClick={clearImages}>
-              לחץ למחיקת התמונות הנבחרות
+    <div className="container-fluid py-4">
+      {/* כותרת */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="d-flex justify-content-between align-items-center">
+            <h1 className="display-5 text-primary fw-bold">
+              <i className="bi bi-plus-circle-fill me-3"></i>
+              {editStatus ? `עדכון מתכון: ${recipe.name}` : 'הוספת מתכון חדש'}
+            </h1>
+            <button className="btn btn-outline-primary" onClick={() => navigate('/')}>
+              <i className="bi bi-house-fill me-2"></i>
+              דף הבית
             </button>
-
-            <label htmlFor="hhh">לחץ על מנת להעלות קבצים </label>
-            <input
-              id="hhh"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-            />
           </div>
+          <hr className="border-primary border-3" />
+        </div>
+      </div>
 
-          <div className="preview-container">
-            {imagesUrls.map((image, index) => (
-              <div className="image-preview" key={index}>
-                <img src={image} alt={`preview ${index}`} />
+      <div className="row">
+        {/* פרטים בסיסיים */}
+        <div className="col-lg-8 col-md-12 mb-4">
+          <div className="card shadow border-0">
+            <div className="card-header bg-primary text-white">
+              <h3 className="card-title mb-0">
+                <i className="bi bi-info-circle me-2"></i>
+                פרטי המתכון
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label fw-bold">שם המתכון:</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-lg"
+                    name="name"
+                    placeholder="הכנס שם מתכון..."
+                    value={recipeData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-bold">מחבר המתכון:</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-lg"
+                    name="author"
+                    placeholder="הכנס שם המחבר..."
+                    value={recipeData.author}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="col-12">
+                  <label className="form-label fw-bold">תיאור המתכון:</label>
+                  <textarea
+                    className="form-control"
+                    name="description"
+                    placeholder="תיאור קצר על המתכון..."
+                    value={recipeData.description}
+                    onChange={handleChange}
+                    rows="4"
+                    required
+                  />
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
-        <div className="description-part">
-          {" "}
-          <textarea
-            name="description"
-            placeholder="תיאור המתכון"
-            value={recipeData.description}
-            onChange={handleChange}
-            rows="4"
-            required
-          />
-        </div>
 
-        <div className="name-author-part">
-          <input
-            type="text"
-            name="name"
-            placeholder="שם המתכון"
-            value={recipeData.name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="author"
-            placeholder="מחבר המתכון"
-            value={recipeData.author}
-            onChange={handleChange}
-            required
-          />
+        {/* תמונות */}
+        <div className="col-lg-4 col-md-12 mb-4">
+          <div className="card shadow border-0">
+            <div className="card-header bg-info text-white">
+              <h3 className="card-title mb-0">
+                <i className="bi bi-images me-2"></i>
+                תמונות המתכון
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="mb-3">
+                <label htmlFor="imageUpload" className="btn btn-outline-info w-100">
+                  <i className="bi bi-upload me-2"></i>
+                  העלאת תמונות
+                </label>
+                <input
+                  id="imageUpload"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="d-none"
+                />
+              </div>
+              
+              {imagesUrls.length > 0 && (
+                <button className="btn btn-outline-danger w-100 mb-3" onClick={clearImages}>
+                  <i className="bi bi-trash me-2"></i>
+                  מחיקת כל התמונות
+                </button>
+              )}
+
+              <div className="row g-2">
+                {imagesUrls.map((image, index) => (
+                  <div key={index} className="col-6">
+                    <img
+                      src={image}
+                      className="img-fluid rounded shadow-sm"
+                      alt={`תמונה ${index + 1}`}
+                      style={{ height: '100px', width: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="renders-section-new">
-        {renderArrayFields("ingredients", "מצרכים", " מצרך שנדרש למתכון")}
-        {renderArrayFields("labels", "תגיות", "תג לסינון המתכון")}
-        {renderArrayFields("steps", "שלבי הכנה", "שלב בהכנת המתכון")}
+      {/* תכונות המתכון */}
+      <div className="row">
+        {/* מצרכים */}
+        <div className="col-lg-4 col-md-12 mb-4">
+          <div className="card shadow border-0 h-100">
+            <div className="card-header bg-success text-white">
+              <h3 className="card-title mb-0">
+                <i className="bi bi-basket me-2"></i>
+                מצרכים
+              </h3>
+            </div>
+            <div className="card-body">
+              {recipeData.ingredients.map((ingredient, index) => (
+                <div key={index} className="input-group mb-2">
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={ingredient}
+                    placeholder="הכנס מצרך..."
+                    onChange={(e) => handleArrayChange(e, index, 'ingredients')}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger"
+                    onClick={() => removeField(index, 'ingredients')}
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-success w-100"
+                onClick={() => addField('ingredients')}
+              >
+                <i className="bi bi-plus me-2"></i>
+                הוסף מצרך
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* תגיות */}
+        <div className="col-lg-4 col-md-12 mb-4">
+          <div className="card shadow border-0 h-100">
+            <div className="card-header bg-warning text-dark">
+              <h3 className="card-title mb-0">
+                <i className="bi bi-tags me-2"></i>
+                תגיות
+              </h3>
+            </div>
+            <div className="card-body">
+              {recipeData.labels.map((label, index) => (
+                <div key={index} className="input-group mb-2">
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={label}
+                    placeholder="הכנס תגית..."
+                    onChange={(e) => handleArrayChange(e, index, 'labels')}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger"
+                    onClick={() => removeField(index, 'labels')}
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-warning w-100"
+                onClick={() => addField('labels')}
+              >
+                <i className="bi bi-plus me-2"></i>
+                הוסף תגית
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* שלבי הכנה */}
+        <div className="col-lg-4 col-md-12 mb-4">
+          <div className="card shadow border-0 h-100">
+            <div className="card-header bg-danger text-white">
+              <h3 className="card-title mb-0">
+                <i className="bi bi-list-ol me-2"></i>
+                שלבי הכנה
+              </h3>
+            </div>
+            <div className="card-body">
+              {recipeData.steps.map((step, index) => (
+                <div key={index} className="mb-3">
+                  <label className="form-label fw-bold">שלב {index + 1}:</label>
+                  <div className="input-group">
+                    <textarea
+                      className="form-control"
+                      value={step}
+                      placeholder={`תיאור שלב ${index + 1}...`}
+                      onChange={(e) => handleArrayChange(e, index, 'steps')}
+                      rows="2"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger"
+                      onClick={() => removeField(index, 'steps')}
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-danger w-100"
+                onClick={() => addField('steps')}
+              >
+                <i className="bi bi-plus me-2"></i>
+                הוסף שלב
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <button onClick={() => handleSubmit()} className="submit-btn">
-        {editStatus ? "שמור שינויים" : "שמור מתכון"}
-      </button>
+
+      {/* כפתור שמירה */}
+      <div className="row">
+        <div className="col-12 text-center">
+          <button
+            onClick={handleSubmit}
+            className="btn btn-lg btn-primary px-5"
+            style={{ borderRadius: '50px' }}
+          >
+            <i className="bi bi-save me-2"></i>
+            {editStatus ? 'שמור שינויים' : 'שמור מתכון'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

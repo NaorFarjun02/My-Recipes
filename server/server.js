@@ -66,6 +66,33 @@ const saveImages = (recipeDir, images, recipeName) => {
   });
 };
 
+const createRacipeLabelsInDb = async (InputLabels, recipeId) => {
+  const labelIds = [];
+  for (const label of InputLabels) {
+    const labelResult = await db.query(
+      "INSERT INTO labels (name) VALUES ($1) ON CONFLICT (name) DO NOTHING RETURNING id",
+      [label]
+    ); // create the label in the lables table
+    if (labelResult.rows.length > 0) {
+      labelIds.push(labelResult.rows[0].id); //if the label insert to db add save is ID for use in the recipe_labels table
+    } else {
+      const existingLabelResult = await db.query(
+        "SELECT id FROM labels WHERE name = $1",
+        [label]
+      );
+      labelIds.push(existingLabelResult.rows[0].id); //if the label is exsist add save is ID for use in the recipe_labels table
+    }
+  }
+
+  // Link labels to the recipe
+  for (const labelId of labelIds) {
+    await db.query(
+      "INSERT INTO recipe_labels (recipe_id, label_id) VALUES ($1, $2)",
+      [recipeId, labelId]
+    ); //create a link between a recipe and the lable in the recipe_lables table
+  }
+};
+
 //create the DB table if not exsist
 async function createTables() {
   const createRecipesTableQuery = `
@@ -299,7 +326,7 @@ app.post("/new-recipe", upload.array("images"), async (req, res) => {
         [recipeId, labelId]
       ); //create a link between a recipe and the lable in the recipe_lables table
     }
-
+    // createRacipeLabelsInDb(labels,recip);
     const recipeDir = path.join(
       __dirname,
       "images",
@@ -356,7 +383,7 @@ app.put("/update-recipe/:id", upload.array("images"), async (req, res) => {
 
     //update the labels of the recipe
     const updateLabels = JSON.parse(req.body.labels);
-    const updateRecipeLables = [];
+    const updateRecipeLables = []; //createRacipeLabelsInDb(updateLabels, recipeId);
     for (const label of updateLabels) {
       const labelResult = await db.query(
         "INSERT INTO labels (name) VALUES ($1) ON CONFLICT (name) DO NOTHING RETURNING id",

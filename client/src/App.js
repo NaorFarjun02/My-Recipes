@@ -1,34 +1,23 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useParams,
-} from "react-router-dom";
-import RecipeBrowser from "./RecipeBrowser/RecipeBrowser"; // Import the RecipeBrowser component
+import { BrowserRouter as Router, Route, Routes, useParams } from "react-router-dom";
+import RecipeBrowser from "./RecipeBrowser/RecipeBrowser";
 import RecipeView from "./RecipeView/RecipeView";
-import "./App.css"; // Add global styles if needed
 import RecipeCreatorEditor from "./NewRecipe/RecipeCreatorEditor";
 import { useEffect, useState } from "react";
+import 'bootstrap/dist/css/bootstrap.rtl.min.css';
+import "./App.css";
 
 const apiUrl = process.env.REACT_APP_API_URL;
+
 function App() {
   return (
     <Router>
       <div className="App">
-        <Routes>
-          {/* עמוד ברירת מחדל - כלל המתכונים */}
-          <Route path="/" element={<RecipeBrowser />} />
-
-          {/* עמוד צפייה במתכון יחיד */}
-          <Route path="/recipe/:id" element={<RecipeViewWrapper />} />
-
-          {/* עמוד הוספת מתכון */}
-          <Route path="/edit-recipe/:id" element={<RecipeEditWrapper />} />
-          <Route
-            path="/new-recipe"
-            element={
-              <RecipeCreatorEditor
-                recipeImages={[]}
+        <div className="container-fluid">
+          <Routes>
+            <Route path="/" element={<RecipeBrowser />} />
+            <Route path="/recipe/:id" element={<RecipeViewWrapper />} />
+            <Route path="/edit-recipe/:id" element={<RecipeEditWrapper />} />
+            <Route path="/new-recipe" element={<RecipeCreatorEditor   recipeImages={[]}
                 recipe={{
                   name: "מרק ירקות עשיר",
                   author: "מירב כהן",
@@ -65,11 +54,9 @@ function App() {
                     "להגיש את המרק חם עם מעט שמן זית מעל.",
                   ],
                 }}
-                editStatus={false}
-              />
-            }
-          />
-        </Routes>
+                editStatus={false} />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );
