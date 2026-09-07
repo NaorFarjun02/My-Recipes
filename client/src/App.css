@@ -1,21 +1,8 @@
 .App {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-bg);
 }
 
 .container-fluid {
   padding: 0;
-}
-
-/* כיתות עזר עבור RTL */
-.text-end {
-  text-align: right !important;
-}
-
-.pe-3 {
-  padding-right: 1rem !important;
-}
-
-.ps-3 {
-  padding-left: 1rem !important;
 }

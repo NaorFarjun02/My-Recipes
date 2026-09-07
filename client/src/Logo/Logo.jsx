@@ -1,26 +1,36 @@
 import React from "react";
-import logoImage from "./logo.png";
 import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
+import logoImage from "./logo.png";
+import "./Logo.css";
 
 function Logo() {
   const navigate = useNavigate();
+
   return (
-    <div className="text-center p-3">
-      <img
-        src={logoImage}
-        alt="Website Logo"
-        className="img-fluid rounded-circle shadow-lg"
-        style={{ 
-          width: '80px', 
-          height: '80px', 
-          objectFit: 'cover',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease'
-        }}
-        onClick={() => navigate("/new-recipe")}
-        onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
-        onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-      />
+    <div className="site-header">
+      <div className="nav site-header-inner">
+        <div
+          className="nav-brand site-brand"
+          onClick={() => navigate("/")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && navigate("/")}
+        >
+          <img src={logoImage} alt="לוגו" className="site-brand-logo" />
+          <span>מטבח בית</span>
+        </div>
+        <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}>
+          מתכונים
+        </a>
+        <a href="/new-recipe" onClick={(e) => { e.preventDefault(); navigate("/new-recipe"); }}>
+          מתכון חדש
+        </a>
+        <button className="btn btn-primary" onClick={() => navigate("/new-recipe")}>
+          <Plus size={18} />
+          הוספת מתכון
+        </button>
+      </div>
     </div>
   );
 }
