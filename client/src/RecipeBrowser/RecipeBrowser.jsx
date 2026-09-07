@@ -1,241 +1,295 @@
 import React, { useState, useMemo, useEffect } from "react";
-import "./RecipeBrowser.css";
-import Logo from "../Logo/Logo";
 import { useNavigate } from "react-router-dom";
+import {
+  Search,
+  ArrowUpDown,
+  Check,
+  Heart,
+  ListOrdered,
+  ShoppingBasket,
+  BookOpen,
+  ChefHat,
+} from "lucide-react";
+import "./RecipeBrowser.css";
+
 const apiUrl = process.env.REACT_APP_API_URL;
+const FAVORITES_KEY = "myrecipes:favorites";
+
+const SORTS = [
+  { key: "default", label: "ברירת מחדל" },
+  { key: "name", label: "לפי שם" },
+  { key: "steps", label: "לפי מספר שלבים" },
+  { key: "ingredients", label: "לפי מספר מצרכים" },
+];
+
+function loadFavorites() {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
 
 const RecipeBrowser = () => {
   const [recipes, setRecipes] = useState([]);
-  const [filters, setFilters] = useState(new Set()); // State for multiple filters using Set
-  const [filtersOptions, setFiltersOptions] = useState(new Set()); //State for all the labels
-  const [sortOption, setSortOption] = useState("default"); // State for sorting
-  const [sortOrder, setSortOrder] = useState("asc"); // State for sort order
+  const [labelOptions, setLabelOptions] = useState([]);
+  const [filters, setFilters] = useState(new Set());
+  const [search, setSearch] = useState("");
+  const [sortIndex, setSortIndex] = useState(0);
+  const [favorites, setFavorites] = useState(loadFavorites);
   const navigate = useNavigate();
-  // Function to handle adding/removing filters
-
-  const getData = async () => {
-    fetch(`${apiUrl}/get-labels`) //get the labels to set the filters
-      .then((response) => response.json())
-      .then((data) => {
-        setFiltersOptions(new Set(data));
-      })
-      .catch((error) => console.error("Error fetching labels:", error));
-
-    fetch(`${apiUrl}/get-recipes`) //get the recipe to display them
-      .then((response) => response.json())
-      .then((data) => {
-        setRecipes(data);
-      })
-      .catch((error) => console.error("Error fetching recipes:", error));
-  };
 
   useEffect(() => {
-    getData();
+    fetch(`${apiUrl}/get-labels`)
+      .then((response) => response.json())
+      .then((data) => setLabelOptions(data))
+      .catch((error) => console.error("Error fetching labels:", error));
+
+    fetch(`${apiUrl}/get-recipes`)
+      .then((response) => response.json())
+      .then((data) => setRecipes(data))
+      .catch((error) => console.error("Error fetching recipes:", error));
   }, []);
-  const toggleFilter = (filter) => {
-    setFilters((prevFilters) => {
-      const newFilters = new Set(prevFilters); // Create a new Set based on the previous filters
-      if (newFilters.has(filter)) {
-        newFilters.delete(filter); // Remove filter if already selected
-      } else {
-        newFilters.add(filter); // Add filter if not selected
-      }
-      return newFilters; // Return the updated Set
+
+  const toggleFilter = (label) => {
+    setFilters((prev) => {
+      const next = new Set(prev);
+      next.has(label) ? next.delete(label) : next.add(label);
+      return next;
     });
   };
 
-  // Filter recipes based on multiple selected filters
-  const filteredRecipes = useMemo(() => {
-    if (filters.size === 0) return recipes; // If no filters are selected, include all recipes
+  const toggleFavorite = (id) => {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify([...next]));
+      return next;
+    });
+  };
 
-    const filtered = [];
-    for (const recipe of recipes) {
-      let matchesAll = true; // Assume it matches all filters
-      for (const filter of filters) {
-        if (!recipe.labels.includes(filter)) {
-          matchesAll = false; // Found a filter that doesn't match
-          break; // No need to check further
-        }
-      }
-      if (matchesAll) filtered.push(recipe); // Add recipe if it matches all filters
+  const query = search.trim();
+
+  const visibleRecipes = useMemo(() => {
+    let list = recipes.filter((r) =>
+      [...filters].every((f) => (r.labels || []).includes(f))
+    );
+    if (query) {
+      const q = query.toLowerCase();
+      list = list.filter((r) =>
+        [r.name, r.author, r.description, ...(r.labels || [])]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(q)
+      );
     }
-    return filtered; // Return the filtered recipes
-  }, [recipes, filters]); // Dependencies for memoization
+    const sort = SORTS[sortIndex];
+    if (sort.key === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name, "he"));
+    if (sort.key === "steps") list = [...list].sort((a, b) => a.steps.length - b.steps.length);
+    if (sort.key === "ingredients")
+      list = [...list].sort((a, b) => a.ingredients.length - b.ingredients.length);
+    return list;
+  }, [recipes, filters, query, sortIndex]);
 
-  // Memoized sorting function to avoid unnecessary re-sorting
-  const sortedRecipes = useMemo(() => {
-    if (sortOption === "default") return filteredRecipes; // No sorting needed
+  const heroRecipe = useMemo(() => {
+    if (recipes.length === 0) return null;
+    return [...recipes].sort((a, b) => b.id - a.id)[0];
+  }, [recipes]);
 
-    const sortFunctions = {
-      name: (a, b) => a.name.localeCompare(b.name),
-      steps: (a, b) =>
-        sortOrder === "asc"
-          ? a.steps.length - b.steps.length
-          : b.steps.length - a.steps.length,
-      ingredients: (a, b) =>
-        sortOrder === "asc"
-          ? a.ingredients.length - b.ingredients.length
-          : b.ingredients.length - a.ingredients.length,
-    };
-
-    return [...filteredRecipes].sort(sortFunctions[sortOption]);
-  }, [filteredRecipes, sortOption, sortOrder]); // Dependencies for memoization
+  const heroOn = Boolean(heroRecipe) && filters.size === 0 && !query;
 
   return (
-  <div className="container-fluid py-4">
-    {/* Header עם לוגו */}
-    <div className="row mb-4">
-      <div className="col-12">
-        <div className="card shadow-lg border-0" style={{background: 'linear-gradient(45deg, #ff6b6b, #ffa500)'}}>
-          <div className="card-body text-center text-white">
-            <Logo />
-            <h1 className="display-4 fw-bold">ברוכים הבאים לאתר המתכונים</h1>
-            <p className="lead">גלו מתכונים טעימים ומגוונים</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* פילטרים וסינון */}
-    <div className="row mb-4">
-      <div className="col-12">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <div className="row align-items-center">
-              {/* פילטרים */}
-              <div className="col-lg-8 col-md-12 mb-3 mb-lg-0">
-                <h5 className="card-title mb-3">
-                  <i className="bi bi-funnel-fill me-2"></i>
-                  סינון מתכונים
-                </h5>
-                <div className="d-flex flex-wrap gap-2">
-                  <button
-                    className={`btn ${filters.size === 0 ? 'btn-primary' : 'btn-outline-primary'} rounded-pill`}
-                    onClick={() => setFilters(new Set())}
-                  >
-                    <i className="bi bi-grid-3x3-gap me-1"></i>
-                    הכל
-                  </button>
-                  {[...filtersOptions].map((filter) => (
-                    <button
-                      key={filter}
-                      className={`btn ${filters.has(filter) ? 'btn-success' : 'btn-outline-success'} rounded-pill`}
-                      onClick={() => toggleFilter(filter)}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* מיון */}
-              <div className="col-lg-4 col-md-12">
-                <h6 className="mb-2">
-                  <i className="bi bi-sort-down me-2"></i>
-                  מיון
-                </h6>
-                <div className="row g-2">
-                  <div className="col-6">
-                    <select 
-                      className="form-select form-select-sm" 
-                      onChange={(e) => setSortOption(e.target.value)}
-                    >
-                      <option value="default">מיין לפי</option>
-                      <option value="name">שם</option>
-                      <option value="steps">כמות שלבים</option>
-                      <option value="ingredients">כמות מצרכים</option>
-                    </select>
-                  </div>
-                  <div className="col-6">
-                    <select 
-                      className="form-select form-select-sm" 
-                      onChange={(e) => setSortOrder(e.target.value)}
-                    >
-                      <option value="asc">עולה</option>
-                      <option value="desc">יורד</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* רשת המתכונים */}
-    <div className="row">
-      {sortedRecipes.map((recipe, index) => (
-        <div key={index} className="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
-          <div className="card h-100 shadow-sm border-0 recipe-card">
-            <div className="position-relative">
-              <img
-                src={`${apiUrl}${recipe.firstImageUrl}`}
-                className="card-img-top"
-                alt={recipe.name}
-                style={{ height: '200px', objectFit: 'cover' }}
-              />
-              <div className="position-absolute top-0 start-0 p-2">
-                <span className="badge bg-warning text-dark">
-                  <i className="bi bi-star-fill me-1"></i>
-                  חדש
-                </span>
-              </div>
-            </div>
-            
-            <div className="card-body d-flex flex-column">
-              <h5 className="card-title text-primary fw-bold">{recipe.name}</h5>
-              <h6 className="text-muted mb-2">
-                <i className="bi bi-person-fill me-1"></i>
-                {recipe.author}
-              </h6>
-              <p className="card-text text-muted flex-grow-1">{recipe.description}</p>
-              
-              {/* תגיות */}
-              <div className="mb-3">
-                {recipe.labels.slice(0, 3).map((label, idx) => (
-                  <span key={idx} className="badge bg-success me-1 mb-1 rounded-pill">
-                    {label}
-                  </span>
-                ))}
-                {recipe.labels.length > 3 && (
-                  <span className="badge bg-secondary rounded-pill">+{recipe.labels.length - 3}</span>
-                )}
-              </div>
-              
-              {/* פרטי המתכון */}
-              <div className="row text-center mb-3">
-                <div className="col-6">
-                  <small className="text-muted">
-                    <i className="bi bi-list-ol me-1"></i>
-                    {Array.isArray(recipe.steps) ? recipe.steps.length : Object.keys(recipe.steps).length} שלבים
-                  </small>
-                </div>
-                <div className="col-6">
-                  <small className="text-muted">
-                    <i className="bi bi-basket me-1"></i>
-                    {recipe.ingredients.length} מצרכים
-                  </small>
-                </div>
-              </div>
-              
+    <div className="recipe-browser">
+      {heroOn && (
+        <section className="hero-section">
+          <div>
+            <span className="tag tag-accent-2" style={{ marginBottom: "var(--space-3)" }}>
+              המתכון של השבוע
+            </span>
+            <h1 className="hero-title">{heroRecipe.name}</h1>
+            <p className="hero-desc">{heroRecipe.description}</p>
+            <div className="hero-actions">
               <button
-                className="btn btn-primary w-100 mt-auto"
-                onClick={() => {
-                  console.log(recipe);
-                  navigate(`/recipe/${recipe.id}`);
-                }}
+                className="btn btn-primary hero-btn"
+                onClick={() => navigate(`/recipe/${heroRecipe.id}`)}
               >
-                <i className="bi bi-eye me-2"></i>
-                צפיה במתכון
+                <BookOpen size={18} />
+                לפתיחת המתכון
+              </button>
+              <button
+                className="btn btn-secondary hero-btn"
+                onClick={() => navigate(`/recipe/${heroRecipe.id}/cook`)}
+              >
+                <ChefHat size={18} />
+                מצב בישול
               </button>
             </div>
+            <div className="hero-stats">
+              <div>
+                <div className="hero-stat-num">{heroRecipe.ingredients.length}</div>
+                <div className="text-muted hero-stat-label">מצרכים</div>
+              </div>
+              <div>
+                <div className="hero-stat-num">{heroRecipe.steps.length}</div>
+                <div className="text-muted hero-stat-label">שלבים</div>
+              </div>
+            </div>
+          </div>
+          <div className="hero-image-wrap">
+            <div className="hero-blob hero-blob-2" />
+            <div className="hero-blob hero-blob-1" />
+            {heroRecipe.firstImageUrl ? (
+              <img
+                className="washed hero-image"
+                src={`${apiUrl}${heroRecipe.firstImageUrl}`}
+                alt={heroRecipe.name}
+              />
+            ) : (
+              <div className="hero-image hero-image-placeholder" />
+            )}
+          </div>
+        </section>
+      )}
+
+      <section className="toolbar-section">
+        <div className="search-field">
+          <label className="text-muted search-label">חיפוש מתכון, מחבר או תגית</label>
+          <div className="search-input-wrap">
+            <input
+              className="input search-input"
+              type="search"
+              placeholder="למשל: שקשוקה, מירב, קינוחים…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <Search size={18} className="search-icon" />
           </div>
         </div>
-      ))}
+        <div className="sort-field">
+          <span className="text-muted" style={{ fontSize: 12 }}>מיון:</span>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setSortIndex((i) => (i + 1) % SORTS.length)}
+          >
+            <ArrowUpDown size={18} />
+            {SORTS[sortIndex].label}
+          </button>
+        </div>
+      </section>
+
+      <section className="chips-section">
+        <button
+          className={`btn ${filters.size === 0 ? "btn-primary" : "btn-secondary"}`}
+          onClick={() => setFilters(new Set())}
+        >
+          הכל
+        </button>
+        {labelOptions.map((label) => {
+          const on = filters.has(label);
+          return (
+            <button
+              key={label}
+              className={`btn ${on ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => toggleFilter(label)}
+            >
+              {on && <Check size={18} />}
+              {label}
+            </button>
+          );
+        })}
+      </section>
+
+      <section className="result-header">
+        <h2 style={{ margin: 0 }}>
+          {filters.size || query ? "תוצאות החיפוש" : "כל המתכונים"}
+        </h2>
+        <span className="text-muted" style={{ fontSize: 13 }}>
+          {visibleRecipes.length} מתכונים
+        </span>
+      </section>
+
+      <section className="recipe-grid">
+        {visibleRecipes.map((recipe) => {
+          const isFav = favorites.has(recipe.id);
+          return (
+            <article key={recipe.id} className="card elev-sm recipe-card">
+              <div className="recipe-card-image-wrap">
+                {recipe.firstImageUrl ? (
+                  <img
+                    className="washed recipe-card-image"
+                    src={`${apiUrl}${recipe.firstImageUrl}`}
+                    alt={recipe.name}
+                  />
+                ) : (
+                  <div className="recipe-card-image recipe-card-image-placeholder" />
+                )}
+                <button
+                  className="btn btn-icon recipe-fav-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(recipe.id);
+                  }}
+                  aria-label={isFav ? "הסרה ממועדפים" : "הוספה למועדפים"}
+                >
+                  <Heart
+                    size={18}
+                    color={isFav ? "var(--color-accent-600)" : "var(--color-neutral-700)"}
+                    fill={isFav ? "currentColor" : "none"}
+                  />
+                </button>
+              </div>
+              <div className="recipe-card-body">
+                <div className="card-kicker">{recipe.author}</div>
+                <h3 className="card-title" style={{ fontSize: 21 }}>{recipe.name}</h3>
+                <p className="card-body" style={{ fontSize: 14, opacity: 0.75 }}>
+                  {recipe.description}
+                </p>
+                <div className="recipe-card-tags">
+                  {(recipe.labels || []).filter(Boolean).map((label) => (
+                    <span key={label} className="tag tag-accent-2">{label}</span>
+                  ))}
+                </div>
+                <div className="recipe-card-stats">
+                  <span>
+                    <ListOrdered size={15} />
+                    {recipe.steps.length} שלבים
+                  </span>
+                  <span>
+                    <ShoppingBasket size={15} />
+                    {recipe.ingredients.length} מצרכים
+                  </span>
+                </div>
+                <button
+                  className="btn btn-primary btn-block"
+                  onClick={() => navigate(`/recipe/${recipe.id}`)}
+                >
+                  צפייה במתכון
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+
+      {visibleRecipes.length === 0 && (
+        <div className="empty-state">
+          <h3>לא מצאנו מתכון כזה</h3>
+          <p className="text-muted">נסו מילה אחרת או נקו את הסינון.</p>
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              setFilters(new Set());
+              setSearch("");
+            }}
+          >
+            ניקוי סינון
+          </button>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
 };
 
 export default RecipeBrowser;

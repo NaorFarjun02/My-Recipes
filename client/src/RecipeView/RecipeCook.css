@@ -1,0 +1,70 @@
+.recipe-cook {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.recipe-cook-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.recipe-cook-progress {
+  display: flex;
+  gap: 6px;
+  margin: var(--space-6) 0;
+}
+.recipe-cook-bar {
+  height: 7px;
+  flex: 1;
+  border-radius: 999px;
+  background: var(--color-neutral-300);
+}
+.recipe-cook-bar.on {
+  background: var(--color-accent-500);
+}
+
+.recipe-cook-card {
+  background: var(--color-neutral-100);
+  padding: var(--space-8);
+  gap: var(--space-4);
+  min-height: 320px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+.recipe-cook-text {
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 3.6vw, 38px);
+  line-height: 1.3;
+  margin: 0;
+  max-width: 26ch;
+}
+
+.recipe-cook-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  flex-wrap: wrap;
+}
+.recipe-cook-nav-btn {
+  padding: 12px 22px;
+  font-size: 16px;
+}
+
+.recipe-cook-ingredients {
+  margin-top: var(--space-8);
+}
+.recipe-cook-ingredients-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.recipe-cook-ingredient {
+  font-size: 13px;
+  padding: 6px 12px;
+}

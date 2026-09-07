@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight, X, Plus, ImagePlus, Trash2, Check } from "lucide-react";
 
 import "./RecipeCreatorEditor.css";
 const apiUrl = process.env.REACT_APP_API_URL;
@@ -7,10 +8,10 @@ const apiUrl = process.env.REACT_APP_API_URL;
 function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
   const navigate = useNavigate();
 
-
   const [images, setImages] = useState([]);
   const [imagesUrls, setImagesUrls] = useState(recipeImages);
-  const [recipeData, setRecipeData] = useState(recipe); //a json that contain the data the user enter
+  const [recipeData, setRecipeData] = useState(recipe);
+  const [newTag, setNewTag] = useState("");
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -40,46 +41,20 @@ function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
     });
   }, []);
 
-  const renderArrayFields = useMemo(
-    () => (field, title, holder) =>
-      (
-        <div className={`${field}-section-new`}>
-          <h3>:{title}</h3>
-          {recipeData[field].map((item, index) => (
-            <div key={index} className={`${field}-item`}>
-              <input
-                className={`${field}-input`}
-                type="text"
-                value={item}
-                placeholder={holder}
-                onChange={(e) => handleArrayChange(e, index, field)}
-                required
-              />
-              <button
-                type="button"
-                className={`remove-${field}-field-btn`}
-                onClick={() => removeField(index, field)}
-              >
-                הסר
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            className={`add-${field}-btn`}
-            onClick={() => addField(field)}
-          >
-            הוסף {title}
-          </button>
-        </div>
-      ),
-    [recipeData, handleArrayChange, removeField, addField]
-  );
+  const addTag = useCallback(() => {
+    const tag = newTag.trim();
+    if (!tag) return;
+    setRecipeData((prevRecipe) => ({
+      ...prevRecipe,
+      labels: prevRecipe.labels.includes(tag) ? prevRecipe.labels : [...prevRecipe.labels, tag],
+    }));
+    setNewTag("");
+  }, [newTag]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const urls = files.map((file) => URL.createObjectURL(file));
-    setImages(files); // Store all selected files
+    setImages(files);
     setImagesUrls(urls);
   };
   const clearImages = async () => {
@@ -120,291 +95,213 @@ function RecipeCreatorEditor({ recipe, recipeImages, editStatus }) {
     }
   };
   const handleSubmit = async (e) => {
-    const recipeFormData = new FormData(); // the data that send to server
+    const recipeFormData = new FormData();
     recipeFormData.append("name", recipeData.name);
     recipeFormData.append("author", recipeData.author);
     recipeFormData.append("description", recipeData.description);
-    recipeFormData.append(
-      "ingredients",
-      JSON.stringify(recipeData.ingredients)
-    );
+    recipeFormData.append("ingredients", JSON.stringify(recipeData.ingredients));
     recipeFormData.append("steps", JSON.stringify(recipeData.steps));
     recipeFormData.append("labels", JSON.stringify(recipeData.labels));
 
-    // Append each image to the form data
     images.forEach((image) => {
       recipeFormData.append("images", image);
     });
 
     if (editStatus) {
-      recipeFormData.append("id", recipeData.id); //add the id of the recipe to the data
-      await updateRecipe(recipeFormData, recipeData.id); //send a put request to server
+      recipeFormData.append("id", recipeData.id);
+      await updateRecipe(recipeFormData, recipeData.id);
       return;
     }
-    await addNewRecipe(recipeFormData); //send a post request to server
+    await addNewRecipe(recipeFormData);
   };
-  
+
+  const ingredientsCount = useMemo(() => recipeData.ingredients.length, [recipeData.ingredients]);
+  const stepsCount = useMemo(() => recipeData.steps.length, [recipeData.steps]);
+
   return (
-    <div className="container-fluid py-4">
-      {/* כותרת */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center">
-            <h1 className="display-5 text-primary fw-bold">
-              <i className="bi bi-plus-circle-fill me-3"></i>
-              {editStatus ? `עדכון מתכון: ${recipe.name}` : 'הוספת מתכון חדש'}
-            </h1>
-            <button className="btn btn-outline-primary" onClick={() => navigate('/')}>
-              <i className="bi bi-house-fill me-2"></i>
-              דף הבית
+    <div className="recipe-editor">
+      <button className="btn btn-ghost" onClick={() => navigate("/")}>
+        <ArrowRight size={18} />
+        חזרה
+      </button>
+      <h1 className="recipe-editor-title">
+        {editStatus ? `עריכת מתכון: ${recipe.name}` : "מתכון חדש"}
+      </h1>
+      <p className="text-muted recipe-editor-subtitle">
+        שלוש שאלות על המתכון, ואחר כך המצרכים והשלבים. אפשר לשמור ולהמשיך בהמשך.
+      </p>
+
+      <div className="card elev-sm recipe-editor-card">
+        <h3 style={{ margin: 0 }}>פרטי המתכון</h3>
+        <div className="recipe-editor-basic-grid">
+          <div className="field">
+            <label>שם המתכון</label>
+            <input
+              className="input"
+              type="text"
+              name="name"
+              placeholder="מרק ירקות עשיר"
+              value={recipeData.name}
+              onChange={handleChange}
+              style={{ minHeight: 44 }}
+              required
+            />
+          </div>
+          <div className="field">
+            <label>מחבר המתכון</label>
+            <input
+              className="input"
+              type="text"
+              name="author"
+              placeholder="מירב כהן"
+              value={recipeData.author}
+              onChange={handleChange}
+              style={{ minHeight: 44 }}
+              required
+            />
+          </div>
+        </div>
+        <div className="field">
+          <label>תיאור קצר</label>
+          <textarea
+            className="input"
+            name="description"
+            rows="3"
+            placeholder="מה מיוחד במתכון הזה?"
+            value={recipeData.description}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="field">
+          <label>תגיות</label>
+          <div className="recipe-editor-tags-row">
+            {recipeData.labels.map((label, index) => (
+              <span key={index} className="tag tag-accent-2 recipe-editor-tag-chip">
+                {label}
+                <button type="button" onClick={() => removeField(index, "labels")}>
+                  <X size={13} />
+                </button>
+              </span>
+            ))}
+            <input
+              className="input recipe-editor-tag-input"
+              type="text"
+              placeholder="תגית חדשה"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addTag();
+                }
+              }}
+            />
+            <button type="button" className="btn btn-secondary recipe-editor-tag-add" onClick={addTag}>
+              <Plus size={14} />
+              תגית
             </button>
           </div>
-          <hr className="border-primary border-3" />
         </div>
       </div>
 
-      <div className="row">
-        {/* פרטים בסיסיים */}
-        <div className="col-lg-8 col-md-12 mb-4">
-          <div className="card shadow border-0">
-            <div className="card-header bg-primary text-white">
-              <h3 className="card-title mb-0">
-                <i className="bi bi-info-circle me-2"></i>
-                פרטי המתכון
-              </h3>
-            </div>
-            <div className="card-body">
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">שם המתכון:</label>
-                  <input
-                    type="text"
-                    className="form-control form-control-lg"
-                    name="name"
-                    placeholder="הכנס שם מתכון..."
-                    value={recipeData.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">מחבר המתכון:</label>
-                  <input
-                    type="text"
-                    className="form-control form-control-lg"
-                    name="author"
-                    placeholder="הכנס שם המחבר..."
-                    value={recipeData.author}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="col-12">
-                  <label className="form-label fw-bold">תיאור המתכון:</label>
-                  <textarea
-                    className="form-control"
-                    name="description"
-                    placeholder="תיאור קצר על המתכון..."
-                    value={recipeData.description}
-                    onChange={handleChange}
-                    rows="4"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="card elev-sm recipe-editor-images-card">
+        <h3 style={{ margin: 0 }}>תמונות</h3>
+        <div className="recipe-editor-images-grid">
+          {imagesUrls.map((image, index) => (
+            <img key={index} className="washed recipe-editor-image" src={image} alt="תמונה" />
+          ))}
+          <label htmlFor="imageUpload" className="btn recipe-editor-upload-btn">
+            <ImagePlus size={24} />
+            העלאת תמונה
+          </label>
+          <input
+            id="imageUpload"
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: "none" }}
+          />
         </div>
-
-        {/* תמונות */}
-        <div className="col-lg-4 col-md-12 mb-4">
-          <div className="card shadow border-0">
-            <div className="card-header bg-info text-white">
-              <h3 className="card-title mb-0">
-                <i className="bi bi-images me-2"></i>
-                תמונות המתכון
-              </h3>
-            </div>
-            <div className="card-body">
-              <div className="mb-3">
-                <label htmlFor="imageUpload" className="btn btn-outline-info w-100">
-                  <i className="bi bi-upload me-2"></i>
-                  העלאת תמונות
-                </label>
-                <input
-                  id="imageUpload"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="d-none"
-                />
-              </div>
-              
-              {imagesUrls.length > 0 && (
-                <button className="btn btn-outline-danger w-100 mb-3" onClick={clearImages}>
-                  <i className="bi bi-trash me-2"></i>
-                  מחיקת כל התמונות
-                </button>
-              )}
-
-              <div className="row g-2">
-                {imagesUrls.map((image, index) => (
-                  <div key={index} className="col-6">
-                    <img
-                      src={image}
-                      className="img-fluid rounded shadow-sm"
-                      alt={`תמונה ${index + 1}`}
-                      style={{ height: '100px', width: '100%', objectFit: 'cover' }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* תכונות המתכון */}
-      <div className="row">
-        {/* מצרכים */}
-        <div className="col-lg-4 col-md-12 mb-4">
-          <div className="card shadow border-0 h-100">
-            <div className="card-header bg-success text-white">
-              <h3 className="card-title mb-0">
-                <i className="bi bi-basket me-2"></i>
-                מצרכים
-              </h3>
-            </div>
-            <div className="card-body">
-              {recipeData.ingredients.map((ingredient, index) => (
-                <div key={index} className="input-group mb-2">
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={ingredient}
-                    placeholder="הכנס מצרך..."
-                    onChange={(e) => handleArrayChange(e, index, 'ingredients')}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger"
-                    onClick={() => removeField(index, 'ingredients')}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="btn btn-success w-100"
-                onClick={() => addField('ingredients')}
-              >
-                <i className="bi bi-plus me-2"></i>
-                הוסף מצרך
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* תגיות */}
-        <div className="col-lg-4 col-md-12 mb-4">
-          <div className="card shadow border-0 h-100">
-            <div className="card-header bg-warning text-dark">
-              <h3 className="card-title mb-0">
-                <i className="bi bi-tags me-2"></i>
-                תגיות
-              </h3>
-            </div>
-            <div className="card-body">
-              {recipeData.labels.map((label, index) => (
-                <div key={index} className="input-group mb-2">
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={label}
-                    placeholder="הכנס תגית..."
-                    onChange={(e) => handleArrayChange(e, index, 'labels')}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger"
-                    onClick={() => removeField(index, 'labels')}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="btn btn-warning w-100"
-                onClick={() => addField('labels')}
-              >
-                <i className="bi bi-plus me-2"></i>
-                הוסף תגית
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* שלבי הכנה */}
-        <div className="col-lg-4 col-md-12 mb-4">
-          <div className="card shadow border-0 h-100">
-            <div className="card-header bg-danger text-white">
-              <h3 className="card-title mb-0">
-                <i className="bi bi-list-ol me-2"></i>
-                שלבי הכנה
-              </h3>
-            </div>
-            <div className="card-body">
-              {recipeData.steps.map((step, index) => (
-                <div key={index} className="mb-3">
-                  <label className="form-label fw-bold">שלב {index + 1}:</label>
-                  <div className="input-group">
-                    <textarea
-                      className="form-control"
-                      value={step}
-                      placeholder={`תיאור שלב ${index + 1}...`}
-                      onChange={(e) => handleArrayChange(e, index, 'steps')}
-                      rows="2"
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => removeField(index, 'steps')}
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="btn btn-danger w-100"
-                onClick={() => addField('steps')}
-              >
-                <i className="bi bi-plus me-2"></i>
-                הוסף שלב
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* כפתור שמירה */}
-      <div className="row">
-        <div className="col-12 text-center">
-          <button
-            onClick={handleSubmit}
-            className="btn btn-lg btn-primary px-5"
-            style={{ borderRadius: '50px' }}
-          >
-            <i className="bi bi-save me-2"></i>
-            {editStatus ? 'שמור שינויים' : 'שמור מתכון'}
+        {imagesUrls.length > 0 && (
+          <button type="button" className="btn btn-ghost" onClick={clearImages}>
+            <Trash2 size={15} />
+            מחיקת כל התמונות
           </button>
+        )}
+      </div>
+
+      <div className="recipe-editor-lists-grid">
+        <div className="card elev-sm recipe-editor-list-card">
+          <h3 style={{ margin: 0 }}>מצרכים</h3>
+          {recipeData.ingredients.map((ingredient, index) => (
+            <div key={index} className="recipe-editor-list-row">
+              <span className="recipe-editor-list-index">{index + 1}</span>
+              <input
+                className="input"
+                type="text"
+                value={ingredient}
+                placeholder={`מצרך ${index + 1}`}
+                onChange={(e) => handleArrayChange(e, index, "ingredients")}
+                style={{ minHeight: 42 }}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-icon btn-secondary"
+                onClick={() => removeField(index, "ingredients")}
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+          ))}
+          <button type="button" className="btn btn-secondary btn-block" onClick={() => addField("ingredients")}>
+            <Plus size={18} />
+            הוספת מצרך
+          </button>
+          <div className="recipe-editor-count text-muted">{ingredientsCount} מצרכים</div>
         </div>
+
+        <div className="card elev-sm recipe-editor-list-card">
+          <h3 style={{ margin: 0 }}>שלבי הכנה</h3>
+          {recipeData.steps.map((step, index) => (
+            <div key={index} className="recipe-editor-list-row recipe-editor-step-row">
+              <span className="recipe-editor-list-index recipe-editor-step-index">{index + 1}</span>
+              <textarea
+                className="input"
+                rows="2"
+                value={step}
+                placeholder={`שלב ${index + 1}`}
+                onChange={(e) => handleArrayChange(e, index, "steps")}
+                style={{ minHeight: 60 }}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-icon btn-secondary recipe-editor-step-remove"
+                onClick={() => removeField(index, "steps")}
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+          ))}
+          <button type="button" className="btn btn-secondary btn-block" onClick={() => addField("steps")}>
+            <Plus size={18} />
+            הוספת שלב
+          </button>
+          <div className="recipe-editor-count text-muted">{stepsCount} שלבים</div>
+        </div>
+      </div>
+
+      <div className="recipe-editor-submit-row">
+        <button className="btn btn-primary recipe-editor-save-btn" onClick={handleSubmit}>
+          <Check size={18} />
+          {editStatus ? "שמירת שינויים" : "שמירת המתכון"}
+        </button>
+        <button className="btn btn-ghost" onClick={() => navigate("/")}>
+          ביטול
+        </button>
       </div>
     </div>
   );

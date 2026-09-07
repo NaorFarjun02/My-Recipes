@@ -1,5 +1,32 @@
-/* רק אם אתה רוצה סגנונות נוספים */
-.logo-hover-effect:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important;
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.site-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-6);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-right: 0;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.site-brand-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  object-fit: cover;
+  box-shadow: var(--shadow-sm);
 }
